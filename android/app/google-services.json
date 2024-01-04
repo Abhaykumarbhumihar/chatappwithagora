@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "230877096711",
+    "firebase_url": "https://firereal-fffc4.firebaseio.com",
+    "project_id": "firereal-fffc4",
+    "storage_bucket": "firereal-fffc4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:230877096711:android:4ac7c38d8dc5ceadd9b3a2",
+        "android_client_info": {
+          "package_name": "com.example.flutter_caht_module"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "230877096711-7turktgp7obbcdmaqbfkj1371djmp8p5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1F-rdst3N8Zcg03iPfHfZRtIT0Ge-NqA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "230877096711-7turktgp7obbcdmaqbfkj1371djmp8p5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
