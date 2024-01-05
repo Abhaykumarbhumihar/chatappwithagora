@@ -58,6 +58,7 @@ class RecentChatController extends GetxController {
            //   return timeB.compareTo(timeA);
            // });
            recentChatList.add(ChatModel.fromJson(chatData));
+           update();
          }
 
          update();

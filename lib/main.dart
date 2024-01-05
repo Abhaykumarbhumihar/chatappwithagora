@@ -322,7 +322,6 @@ import 'package:flutter_caht_module/screen/splash_screen.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:draggable_float_widget/draggable_float_widget.dart';
 import 'controllers/individual_chat_controller.dart';
 import 'utils/AppLifecycleObserver.dart';
 
