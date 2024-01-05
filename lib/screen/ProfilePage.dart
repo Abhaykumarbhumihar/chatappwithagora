@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_caht_module/controllers/profilecontroller.dart';
+import 'package:flutter_caht_module/controllers/recentchat_controller.dart';
+import 'package:flutter_caht_module/screen/individular_chat.dart';
 import 'package:flutter_caht_module/screen/recentchat.dart';
 import 'package:flutter_caht_module/screen/userlist.dart';
 import 'package:gap/gap.dart';
@@ -35,12 +37,14 @@ class ProfilePage extends StatelessWidget {
               color: Colors.black,
             ),
             onPressed: () {
-              SchedulerBinding.instance.addPostFrameCallback((_) {
+              //Get.off(RecentChat());
+              var myController = Get.isRegistered<RecentChatController>()
+                  ? Get.find<RecentChatController>()
+                  : Get.put(RecentChatController());
+              myController.getData();
+             // Get.to(IndividualChat());
+              Get.back();
 
-                // add your code here.
-
-               // Get.off(RecentChat());
-              });
            },
           ),
           IconButton(

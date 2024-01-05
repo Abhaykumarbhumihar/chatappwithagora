@@ -19,6 +19,7 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Your App Name',
       home: AnimatedSplashScreen(
         duration: 3000, // Adjust the duration as needed

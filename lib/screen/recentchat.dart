@@ -14,8 +14,9 @@ import '../utils/color_code.dart';
 import 'individular_chat.dart';
 
 class RecentChat extends StatelessWidget {
-  final controller = Get.put(RecentChatController());
-
+  var controller = Get.isRegistered<RecentChatController>()
+      ? Get.find<RecentChatController>()
+      : Get.put(RecentChatController());
   RecentChat({Key? key}) : super(key: key);
 
   @override
