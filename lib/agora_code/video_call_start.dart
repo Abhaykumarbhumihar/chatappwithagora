@@ -686,8 +686,9 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
     var controller = Get.isRegistered<RecentChatController>()
         ? Get.find<RecentChatController>()
         : Get.put(RecentChatController());
-    controller.getData();
-    Get.off(() => RecentChat());
+   // controller.getData();
+
+    Get.back();
   }
 
   // Release the resources when you leave

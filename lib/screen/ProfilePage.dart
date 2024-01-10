@@ -65,95 +65,102 @@ class ProfilePage extends StatelessWidget {
           width: width,
           height: height,
           child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Gap(height * 0.06),
-                Stack(
-                  alignment: Alignment.bottomRight,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        controller.openDialog(context);
-                      },
-                      child: CircleAvatar(
-                        radius: 75,
-                        backgroundImage: controller.image.value != null
-                            ? Image.file(
-                                controller.image.value!,
-                                fit: BoxFit.cover,
-                              ).image
-                            : NetworkImage(
-                                controller.usermodel.value.profileImage ??
-                                    ""), // Replace with your image
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        controller.isEditMode = !controller.isEditMode;
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.blue,
-                        ),
-                        child: const Icon(
-                          Icons.edit,
-                          color: Colors.white,
+            child: Padding(
+              padding: ScreenUtils.isLargeScreen(context)?
+              EdgeInsets.only(left: MediaQuery.of(context).size.width*0.2,
+                  right:MediaQuery.of(context).size.width*0.2)
+
+                  : EdgeInsets.all(1.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Gap(height * 0.06),
+                  Stack(
+                    alignment: Alignment.bottomRight,
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          controller.openDialog(context);
+                        },
+                        child: CircleAvatar(
+                          radius: 75,
+                          backgroundImage: controller.image.value != null
+                              ? Image.file(
+                                  controller.image.value!,
+                                  fit: BoxFit.cover,
+                                ).image
+                              : NetworkImage(
+                                  controller.usermodel.value.profileImage ??
+                                      ""), // Replace with your image
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                TextFieldWidget(
-                  'First Name',
-                  'admin@gmail.com',
-                  '',
-                  controller: controller.fnameController,
-                  isDisable: controller.isEditMode,
-                ),
-                Gap(height * 0.03),
-                TextFieldWidget(
-                  'Last name',
-                  'admin@gmail.com',
-                  '',
-                  controller: controller.lnameController,
-                  isDisable: controller.isEditMode,
-                ),
-                Gap(height * 0.03),
-                TextFieldWidget(
-                  'Email',
-                  'admin@gmail.com',
-                  '',
-                  isDisable: false,
-                  isEmail: true,
-                  controller: controller.emailController,
-                ),
-                Gap(height * 0.04),
-                controller.isEditMode
-                    ? Padding(
-                        padding: EdgeInsets.only(
-                            left: width * 0.06, right: width * 0.06),
-                        child: Utils().createButton(
-                            context,
-                            "Update Profile",
-                            width,
-                            ScreenUtils.isSmallScreen(context)
-                                ? (ScreenUtils.isSmallfont(context)
-                                    ? height * 0.07
-                                    : height * 0.07)
-                                : height * 0.07, () {
-                          controller.updateProfileWithImage();
-                        }),
-                      )
-                    : const SizedBox(),
+                      GestureDetector(
+                        onTap: () {
+                          controller.isEditMode = !controller.isEditMode;
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.blue,
+                          ),
+                          child: const Icon(
+                            Icons.edit,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  TextFieldWidget(
+                    'First Name',
+                    'admin@gmail.com',
+                    '',
+                    controller: controller.fnameController,
+                    isDisable: controller.isEditMode,
+                  ),
+                  Gap(height * 0.03),
+                  TextFieldWidget(
+                    'Last name',
+                    'admin@gmail.com',
+                    '',
+                    controller: controller.lnameController,
+                    isDisable: controller.isEditMode,
+                  ),
+                  Gap(height * 0.03),
+                  TextFieldWidget(
+                    'Email',
+                    'admin@gmail.com',
+                    '',
+                    isDisable: false,
+                    isEmail: true,
+                    controller: controller.emailController,
+                  ),
+                  Gap(height * 0.04),
+                  controller.isEditMode
+                      ? Padding(
+                          padding: EdgeInsets.only(
+                              left: width * 0.06, right: width * 0.06),
+                          child: Utils().createButton(
+                              context,
+                              "Update Profile",
+                              width,
+                              ScreenUtils.isSmallScreen(context)
+                                  ? (ScreenUtils.isSmallfont(context)
+                                      ? height * 0.07
+                                      : height * 0.07)
+                                  : height * 0.07, () {
+                            controller.updateProfileWithImage();
+                          },controller),
+                        )
+                      : const SizedBox(),
 
 
 
 
-              ],
+                ],
+              ),
             ),
           ),
         );

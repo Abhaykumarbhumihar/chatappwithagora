@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_caht_module/controllers/individual_chat_controller.dart';
 import 'package:flutter_caht_module/controllers/recentchat_controller.dart';
@@ -17,6 +18,7 @@ class RecentChat extends StatelessWidget {
   var controller = Get.isRegistered<RecentChatController>()
       ? Get.find<RecentChatController>()
       : Get.put(RecentChatController());
+
   RecentChat({Key? key}) : super(key: key);
 
   @override
@@ -24,7 +26,7 @@ class RecentChat extends StatelessWidget {
     controller.getData();
     return Scaffold(
       appBar: _appBar(context),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton:ScreenUtils.isLargeScreen(context)?SizedBox(): FloatingActionButton(
         onPressed: () {
           Get.to(const UserList());
           Get.find<ProfileController>().getUserss();
@@ -38,119 +40,327 @@ class RecentChat extends StatelessWidget {
       backgroundColor:
           Color(Utils.hexStringToHexInt(ColorsCode.backgroundColor)),
       body: GetBuilder<RecentChatController>(builder: (controller) {
-        return ListView.builder(
-          itemCount: controller.recentChatList.length,
-          itemBuilder: (context, index) {
-            return InkWell(
-              onTap: () {
-                UserModel? userModel;
-                if (controller.recentChatList[index].userOne!.id ==
-                    controller.currentUserId) //means login user hai is came me user two ka data lena hai
-                {
-                  //set user two data
-                  userModel = UserModel(
-                      fname: controller.recentChatList[index].userTwo!.fname!,
-                      password: "sdfsd",
-                      email: controller.recentChatList[index].userTwo!.email!,
-                      id: controller.recentChatList[index].userTwo!.id!,
-                      lname: controller.recentChatList[index].userTwo!.lanme!,
-                      profileImage: controller
-                          .recentChatList[index].userTwo!.profileImage!);
-                } else {
-                //means login user nahi hai is came me user one ka data lena hai
-                  //send user one data
-                  userModel = UserModel(
-                      fname: controller.recentChatList[index].userOne!.fname!,
-                      password: "sdfsd",
-                      email: controller.recentChatList[index].userOne!.email!,
-                      id: controller.recentChatList[index].userOne!.id!,
-                      lname: controller.recentChatList[index].userOne!.lanme!,
-                      profileImage: controller
-                          .recentChatList[index].userOne!.profileImage!);
-                }
-                var individualChatController =
-                    Get.put(IndividualChatController());
-                individualChatController.userToken="";
-                individualChatController.userModel = userModel;
-                //jis user se chat kr rhe hai uska token get krne k liye
-                individualChatController.getFirebaseToken(userModel.id);
-                //jis user se chat kr rhe hai uska previcious message get krne k liye
-                individualChatController.getMessages(userModel);
+        if (ScreenUtils.isLargeScreen(context)) {
+          return Container(
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                    flex: 1,
+                    child: Card(
+                      color: Colors.transparent,
+                      surfaceTintColor: Colors.white,
+                      //  shape: Border(right: BorderSide(color: Colors.red, width: 5)),
+                      shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(10),
+                              topLeft: Radius.circular(10))),
+                      child: controller.isShowAllUSer
+                          ? const UserList()
+                          : ListView.builder(
+                              itemCount: controller.recentChatList.length,
+                              itemBuilder: (context, index) {
+                                return InkWell(
+                                  onTap: () {
+                                    controller.showIndividual = true;
+                                    UserModel? userModel;
+                                    if (controller.recentChatList[index]
+                                            .userOne!.id ==
+                                        controller
+                                            .currentUserId) //means login user hai is came me user two ka data lena hai
+                                    {
+                                      //set user two data
+                                      userModel = UserModel(
+                                          fname: controller
+                                              .recentChatList[index]
+                                              .userTwo!
+                                              .fname!,
+                                          password: "sdfsd",
+                                          email: controller
+                                              .recentChatList[index]
+                                              .userTwo!
+                                              .email!,
+                                          id: controller.recentChatList[index]
+                                              .userTwo!.id!,
+                                          lname: controller
+                                              .recentChatList[index]
+                                              .userTwo!
+                                              .lanme!,
+                                          profileImage: controller
+                                              .recentChatList[index]
+                                              .userTwo!
+                                              .profileImage!);
+                                    } else {
+                                      //means login user nahi hai is came me user one ka data lena hai
+                                      //send user one data
+                                      userModel = UserModel(
+                                          fname: controller
+                                              .recentChatList[index]
+                                              .userOne!
+                                              .fname!,
+                                          password: "sdfsd",
+                                          email: controller
+                                              .recentChatList[index]
+                                              .userOne!
+                                              .email!,
+                                          id: controller.recentChatList[index]
+                                              .userOne!.id!,
+                                          lname: controller
+                                              .recentChatList[index]
+                                              .userOne!
+                                              .lanme!,
+                                          profileImage: controller
+                                              .recentChatList[index]
+                                              .userOne!
+                                              .profileImage!);
+                                    }
 
-                individualChatController.messageList.clear();
-                Get.to(IndividualChat(), arguments: userModel);
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Row(
-                      children: [
-                        //todo--profile view
-                        CircleAvatar(
-                          radius: 30,
-                          backgroundImage: NetworkImage(
-                            controller.recentChatList[index].userOne!.id ==
-                                    controller.currentUserId
-                                ? controller.recentChatList[index].userTwo!
-                                    .profileImage!
-                                : controller.recentChatList[index].userOne!
-                                    .profileImage!,
-                          ), // Replace with the actual image URL
-                        ),
-                        const SizedBox(width: 24),
-                        //todo---name and lastmessage view
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
+                                    controller.userModel = userModel;
+
+                                    // var individualChatController =
+                                    //     Get.put(IndividualChatController());
+                                    // individualChatController.userToken = "";
+                                    // individualChatController.userModel = userModel;
+                                    // //jis user se chat kr rhe hai uska token get krne k liye
+                                    // individualChatController
+                                    //     .getFirebaseToken(userModel.id);
+                                    // //jis user se chat kr rhe hai uska previcious message get krne k liye
+                                    // individualChatController.getMessages(userModel);
+                                    //
+                                    // individualChatController.messageList.clear();
+                                    // Get.to(IndividualChat(), arguments: userModel);
+                                    var individualChatController =
+                                        Get.put(IndividualChatController());
+                                    individualChatController.userToken = "";
+                                    individualChatController.userModel =
+                                        userModel;
+                                    //jis user se chat kr rhe hai uska token get krne k liye
+                                    individualChatController
+                                        .getFirebaseToken(userModel.id);
+                                    //jis user se chat kr rhe hai uska previcious message get krne k liye
+                                    individualChatController
+                                        .getMessages(userModel);
+
+                                    individualChatController.messageList
+                                        .clear();
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+                                        Row(
+                                          children: [
+                                            //todo--profile view
+                                            CircleAvatar(
+                                              radius: 30,
+                                              backgroundImage: NetworkImage(
+                                                controller.recentChatList[index]
+                                                            .userOne!.id ==
+                                                        controller.currentUserId
+                                                    ? controller
+                                                        .recentChatList[index]
+                                                        .userTwo!
+                                                        .profileImage!
+                                                    : controller
+                                                        .recentChatList[index]
+                                                        .userOne!
+                                                        .profileImage!,
+                                              ), // Replace with the actual image URL
+                                            ),
+                                            const SizedBox(width: 24),
+                                            //todo---name and lastmessage view
+                                            Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceAround,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Text(
+                                                  controller
+                                                              .recentChatList[
+                                                                  index]
+                                                              .userOne!
+                                                              .id ==
+                                                          controller
+                                                              .currentUserId
+                                                      ? controller
+                                                          .recentChatList[index]
+                                                          .userTwo!
+                                                          .fname!
+                                                      : controller
+                                                          .recentChatList[index]
+                                                          .userOne!
+                                                          .fname!,
+                                                  style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 16.0),
+                                                ),
+                                                Container(
+                                                  constraints: const BoxConstraints(
+                                                      maxWidth: 230),
+                                                  child: Text(
+                                                    controller
+                                                        .recentChatList[index]
+                                                        .lastMessage!,
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.normal,
+                                                        fontSize: 14.0),
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        //todo---time view
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(right: 8.0),
+                                          child: Text(
+                                              formatMillisecondsSinceEpoch(
+                                                  millisecondsSinceEpochString:
+                                                      controller
+                                                          .recentChatList[index]
+                                                          .sendTime!),
+                                              style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.normal,
+                                                  fontSize: 12.0)),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                    )),
+                Expanded(flex: 2, child: individualChat(controller))
+              ],
+            ),
+          );
+        } else {
+          return ListView.builder(
+            itemCount: controller.recentChatList.length,
+            itemBuilder: (context, index) {
+              return InkWell(
+                onTap: () {
+                  UserModel? userModel;
+                  if (controller.recentChatList[index].userOne!.id ==
+                      controller
+                          .currentUserId) //means login user hai is came me user two ka data lena hai
+                  {
+                    //set user two data
+                    userModel = UserModel(
+                        fname: controller.recentChatList[index].userTwo!.fname!,
+                        password: "sdfsd",
+                        email: controller.recentChatList[index].userTwo!.email!,
+                        id: controller.recentChatList[index].userTwo!.id!,
+                        lname: controller.recentChatList[index].userTwo!.lanme!,
+                        profileImage: controller
+                            .recentChatList[index].userTwo!.profileImage!);
+                  } else {
+                    //means login user nahi hai is came me user one ka data lena hai
+                    //send user one data
+                    userModel = UserModel(
+                        fname: controller.recentChatList[index].userOne!.fname!,
+                        password: "sdfsd",
+                        email: controller.recentChatList[index].userOne!.email!,
+                        id: controller.recentChatList[index].userOne!.id!,
+                        lname: controller.recentChatList[index].userOne!.lanme!,
+                        profileImage: controller
+                            .recentChatList[index].userOne!.profileImage!);
+                  }
+                  var individualChatController =
+                      Get.put(IndividualChatController());
+                  individualChatController.userToken = "";
+                  individualChatController.userModel = userModel;
+                  //jis user se chat kr rhe hai uska token get krne k liye
+                  individualChatController.getFirebaseToken(userModel.id);
+                  //jis user se chat kr rhe hai uska previcious message get krne k liye
+                  individualChatController.getMessages(userModel);
+
+                  individualChatController.messageList.clear();
+                  Get.to(IndividualChat(), arguments: userModel);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Row(
+                        children: [
+                          //todo--profile view
+                          CircleAvatar(
+                            radius: 30,
+                            backgroundImage: NetworkImage(
                               controller.recentChatList[index].userOne!.id ==
                                       controller.currentUserId
-                                  ? controller
-                                      .recentChatList[index].userTwo!.fname!
-                                  : controller
-                                      .recentChatList[index].userOne!.fname!,
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16.0),
-                            ),
-                            Container(
-                              constraints: BoxConstraints(maxWidth: 230),
-                              child: Text(
-                                controller.recentChatList[index].lastMessage!,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                                  ? controller.recentChatList[index].userTwo!
+                                      .profileImage!
+                                  : controller.recentChatList[index].userOne!
+                                      .profileImage!,
+                            ), // Replace with the actual image URL
+                          ),
+                          const SizedBox(width: 24),
+                          //todo---name and lastmessage view
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                controller.recentChatList[index].userOne!.id ==
+                                        controller.currentUserId
+                                    ? controller
+                                        .recentChatList[index].userTwo!.fname!
+                                    : controller
+                                        .recentChatList[index].userOne!.fname!,
                                 style: const TextStyle(
                                     color: Colors.white,
-                                    fontWeight: FontWeight.normal,
-                                    fontSize: 14.0),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16.0),
                               ),
-                            )
-                          ],
-                        ),
-                      ],
-                    ),
-                    //todo---time view
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: Text(
-                          formatMillisecondsSinceEpoch(
-                              millisecondsSinceEpochString:
-                                  controller.recentChatList[index].sendTime!),
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.normal,
-                              fontSize: 12.0)),
-                    )
-                  ],
+                              Container(
+                                constraints: const BoxConstraints(maxWidth: 230),
+                                child: Text(
+                                  controller.recentChatList[index].lastMessage!,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.normal,
+                                      fontSize: 14.0),
+                                ),
+                              )
+                            ],
+                          ),
+                        ],
+                      ),
+                      //todo---time view
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: Text(
+                            formatMillisecondsSinceEpoch(
+                                millisecondsSinceEpochString:
+                                    controller.recentChatList[index].sendTime!),
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.normal,
+                                fontSize: 12.0)),
+                      )
+                    ],
+                  ),
                 ),
-              ),
-            );
-          },
-        );
+              );
+            },
+          );
+        }
       }),
     );
   }
@@ -168,6 +378,26 @@ class RecentChat extends StatelessWidget {
     String formattedTime = DateFormat('HH:mm').format(dateTime);
 
     return formattedTime;
+  }
+
+  Widget individualChat(RecentChatController controller) {
+    var myController = Get.isRegistered<IndividualChatController>()
+        ? Get.find<IndividualChatController>()
+        : Get.put(IndividualChatController());
+
+    print("BUTTON CLICK IS HEREEEEEE");
+
+
+    return controller.showIndividual
+        ? Container(
+            color: Colors.white60,
+            width: Get.width,
+            height: Get.height,
+            child: IndividualChat(),
+          )
+        : Container(
+            child: const Text("Start your chat"),
+          );
   }
 
   _appBar(context) {
@@ -195,13 +425,22 @@ class RecentChat extends StatelessWidget {
               onPressed: () async {
                 Get.to(ProfilePage());
               },
-              icon: Icon(Icons.account_circle_outlined),
+              icon: const Icon(Icons.account_circle_outlined),
               iconSize: ScreenUtils.isSmallScreen(context)
                   ? Get.width * 0.09
                   : Get.width * 0.09,
             ).paddingOnly(right: 12),
-
-
+            IconButton(
+              onPressed: () async {
+                Get.find<ProfileController>().getUserss();
+                controller.isShowAllUSer = true;
+                // Get.to(const UserList());
+              },
+              icon: const Icon(Icons.supervised_user_circle_sharp),
+              iconSize: ScreenUtils.isSmallScreen(context)
+                  ? Get.width * 0.09
+                  : Get.width * 0.09,
+            ).paddingOnly(right: 12),
           ],
           titleSpacing: 0,
           title: Text(

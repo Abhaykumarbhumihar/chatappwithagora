@@ -5,6 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_caht_module/agora_code/makevideocall.dart';
 import 'package:flutter_caht_module/controllers/individual_chat_controller.dart';
+import 'package:flutter_caht_module/utils/ScreenUtils.dart';
 import 'package:flutter_caht_module/widgets/network_image.dart';
 import 'package:get/get.dart';
 import 'package:sticky_grouped_list/sticky_grouped_list.dart';
@@ -15,6 +16,7 @@ import 'package:swipeable_null_safety/swipeable_null_safety.dart';
 import 'package:any_link_preview/any_link_preview.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/foundation.dart' as foundation;
+
 class IndividualChat extends StatefulWidget {
   IndividualChat({super.key});
 
@@ -54,11 +56,11 @@ class _IndividualChatState extends State<IndividualChat>
 
     controller.scrollController.scrollTo(
       index: index,
-      duration: const Duration(seconds: 1),
-      curve: Curves.easeInOut,
+      duration: const Duration(seconds: 2),
+      curve: Curves.bounceOut, // Curves.bounceOut
     );
 
-    Timer(const Duration(seconds: 3), () {
+    Timer(const Duration(seconds: 6), () {
       setState(() {
         highlightedIndex = -1;
       });
@@ -89,67 +91,69 @@ class _IndividualChatState extends State<IndividualChat>
   @override
   Widget build(BuildContext context) {
     return GetBuilder<IndividualChatController>(builder: (controller) {
-      return controller.imageSelect == false
-          ? Scaffold(
-              appBar: PreferredSize(
-                preferredSize: const Size.fromHeight(65),
-                child: controller.isMessageSelect
-                    ? deleteMessageAppbar(controller)
-                    : normalAppBar(),
-              ),
-              body: Container(
-                height: MediaQuery.of(context).size.height,
-                width: MediaQuery.of(context).size.width,
-                child: WillPopScope(
-                  child: Column(
-                    children: [
-                      Expanded(
-                          child: controller.messageList.length > 0
-                              ?
-                          StickyGroupedListView<Message, DateTime>(
-                                  elements: controller.messageList,
-                                  order: StickyGroupedListOrder.ASC,
-                                  floatingHeader: false,
-                                  initialScrollIndex:
-                                      controller.messageList.length ?? 0,
-                                  addRepaintBoundaries: true,
-                                  stickyHeaderBackgroundColor:
-                                      Colors.transparent,
-                                  itemScrollController:
-                                      controller.scrollController,
-                                  groupBy: (Message element) {
-                                    // Group by date
-                                    final dateTime =
-                                        DateTime.fromMillisecondsSinceEpoch(
-                                            int.parse(element.timestamp!));
-                                    return DateTime(dateTime.year,
-                                        dateTime.month, dateTime.day);
-                                    //this is for grouping with hh:mm:ss
-                                    // return DateTime.fromMillisecondsSinceEpoch(
-                                    //     int.parse(element.timestamp!));
-                                  },
-                                  groupSeparatorBuilder: (Message element) {
-                                    // Build your sticky header widget
-                                    final dateTime =
-                                        DateTime.fromMillisecondsSinceEpoch(
-                                            int.parse(element.timestamp!));
-                                    final dateString = DateFormat('dd/MM/yyyy')
-                                        .format(dateTime);
+      if (controller.imageSelect == false) {
+        return Scaffold(
+            appBar: PreferredSize(
+              preferredSize: const Size.fromHeight(65),
+              child: controller.isMessageSelect
+                  ? deleteMessageAppbar(controller)
+                  : normalAppBar(),
+            ),
+            body: Container(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              child: WillPopScope(
+                child: Column(
+                  children: [
+                    Expanded(
+                        child: controller.messageList.length > 0 &&
+                                controller.messageList.length != null
+                            ? StickyGroupedListView<Message, DateTime>(
+                                elements: controller.messageList,
+                                order: StickyGroupedListOrder.ASC,
+                                floatingHeader: false,
+                                initialScrollIndex:
+                                    controller.messageList.isNotEmpty
+                                        ? controller.messageList.length - 1
+                                        : 0,
+                                addRepaintBoundaries: true,
+                                stickyHeaderBackgroundColor: Colors.transparent,
+                                itemScrollController:
+                                    controller.scrollController,
+                                groupBy: (Message element) {
+                                  // Group by date
+                                  final dateTime =
+                                      DateTime.fromMillisecondsSinceEpoch(
+                                          int.parse(element.timestamp!));
+                                  return DateTime(dateTime.year, dateTime.month,
+                                      dateTime.day);
+                                  //this is for grouping with hh:mm:ss
+                                  // return DateTime.fromMillisecondsSinceEpoch(
+                                  //     int.parse(element.timestamp!));
+                                },
+                                groupSeparatorBuilder: (Message element) {
+                                  // Build your sticky header widget
+                                  final dateTime =
+                                      DateTime.fromMillisecondsSinceEpoch(
+                                          int.parse(element.timestamp!));
+                                  final dateString =
+                                      DateFormat('dd/MM/yyyy').format(dateTime);
 
-                                    return Chip(
-                                      label: Text(
-                                        dateString,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                  return Chip(
+                                    label: Text(
+                                      dateString,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                    );
-                                  },
-                                  indexedItemBuilder:
-                                      (context, Message element, index) {
-                                    // Build your list item widget
-                                    return
-                                      Swipeable(
+                                    ),
+                                  );
+                                },
+                                indexedItemBuilder:
+                                    (context, Message element, index) {
+                                  // Build your list item widget
+                                  if (index >= 0 &&
+                                      index < controller.messageList.length) {
+                                    return Swipeable(
                                       threshold: 100.0,
                                       onSwipeLeft: () {
                                         controller.isReply = true;
@@ -182,7 +186,9 @@ class _IndividualChatState extends State<IndividualChat>
                                                       .messageId!);
                                             } else {
                                               //scroll to reply message
-                                              element.deleteMessageUser!.contains(controller.currentUserid);
+                                              element.deleteMessageUser!
+                                                  .contains(
+                                                      controller.currentUserid);
                                               String idToFind = element
                                                   .replyMessageData!
                                                   .messageId!; // Example ID to find
@@ -235,280 +241,167 @@ class _IndividualChatState extends State<IndividualChat>
                                         ),
                                       ),
                                     );
-                                  },
-                                )
-
-                              : const SizedBox()),
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Column(
-                          children: [
-
-                            controller.isReply
-                                ? SlideTransition(
-                                    position: _animation,
-                                    child: Container(
-                                      width: MediaQuery.of(context).size.width,
-                                      decoration: const BoxDecoration(
-                                        color: Colors.black12,
-                                        borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(20.0),
-                                          topRight: Radius.circular(20.0),
-                                        ),
-                                      ),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          border:
-                                              Border.all(color: Colors.grey),
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
-                                        ),
-                                        padding: const EdgeInsets.all(10.0),
-                                        margin: const EdgeInsets.all(20.0),
-                                        width: 300,
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
-                                              children: [
-                                                GestureDetector(
-                                                  onTap: () {
-                                                    controller.isReply = false;
-                                                    controller.replymessageid =
-                                                        Message();
-                                                  },
-                                                  child:
-                                                      const Icon(Icons.close),
-                                                ),
-                                              ],
-                                            ),
-                                            Text(
-                                              '${controller.replymessageid.senderId}',
-                                              style: const TextStyle(
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            const SizedBox(height: 5),
-                                            Text(
-                                                '${controller.replymessageid.text}'),
-                                          ],
-                                        ),
+                                  } else {
+                                    return SizedBox();
+                                  }
+                                },
+                              )
+                            : const SizedBox()),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Column(
+                        children: [
+                          controller.isReply
+                              ? SlideTransition(
+                                  position: _animation,
+                                  child: Container(
+                                    width: MediaQuery.of(context).size.width,
+                                    decoration: const BoxDecoration(
+                                      color: Colors.black12,
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(20.0),
+                                        topRight: Radius.circular(20.0),
                                       ),
                                     ),
-                                  )
-                                : const SizedBox(),
-
-                            Container(
-                              height: 70,
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade200,
-                                borderRadius: const BorderRadius.only(
-                                  bottomLeft: Radius.circular(20.0),
-                                  bottomRight: Radius.circular(20.0),
-                                ),
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Container(
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width -
-                                              55,
-                                          child: Card(
-                                              margin: const EdgeInsets.only(
-                                                  left: 2, right: 2, bottom: 8),
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          25)),
-                                              child: TextFormField(
-                                                controller:
-                                                    controller.textController,
-                                               focusNode: focusNode,
-                                                textAlignVertical:
-                                                    TextAlignVertical.center,
-                                                keyboardType:
-                                                    TextInputType.multiline,
-                                                maxLines: 5,
-                                                minLines: 1,
-                                                onChanged: (value) {
-                                                  if (value.length > 0) {
-                                                    controller.sendChatButton =
-                                                        true;
-                                                    controller
-                                                        .updateTypingStaus(
-                                                            true);
-                                                    controller.isTyping = true;
-                                                  } else {
-                                                    controller.sendChatButton =
-                                                        false;
-                                                    controller.isTyping = false;
-                                                    controller
-                                                        .updateTypingStaus(
-                                                            false);
-                                                  }
-                                                },
-                                                decoration: InputDecoration(
-                                                    border: InputBorder.none,
-                                                    hintText:
-                                                        "Type your message",
-                                                    suffixIcon: Row(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        IconButton(
-                                                            onPressed: () {
-                                                              showModalBottomSheet(
-                                                                  backgroundColor:
-                                                                      Colors
-                                                                          .transparent,
-                                                                  context:
-                                                                      context,
-                                                                  builder: (builder) =>
-                                                                      bottomSheet(
-                                                                          context));
-                                                            },
-                                                            icon: const Icon(Icons
-                                                                .attach_file)),
-                                                        IconButton(
-                                                            onPressed: () {},
-                                                            icon: const Icon(
-                                                                Icons.camera))
-                                                      ],
-                                                    ),
-                                                    contentPadding:
-                                                        const EdgeInsets.all(5),
-                                                    prefixIcon: IconButton(
-                                                      icon: Icon(controller
-                                                              .showEmoji
-                                                          ? Icons.keyboard
-                                                          : Icons
-                                                              .emoji_emotions),
-                                                      onPressed: () {
-                                                        if (!controller
-                                                            .showEmoji) {
-                                                          focusNode.unfocus();
-                                                          focusNode
-                                                                  .canRequestFocus =
-                                                              false;
-                                                        }
-                                                        controller.showEmoji =
-                                                            !controller
-                                                                .showEmoji;
-                                                        _hideKeyboard(context);
-                                                      },
-                                                    )),
-                                              ))),
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                            bottom: 8.0, right: 2),
-                                        child: CircleAvatar(
-                                          radius: 25,
-                                          backgroundColor: Colors.purple[400],
-                                          child: IconButton(
-                                              onPressed: () {
-                                                if (controller.sendChatButton) {
-
-                                                  controller.chatType = "text";
-                                                  controller.sendMessage(
-                                                      controller.userModel,
-                                                      controller
-                                                          .textController.text
-                                                          .toString(),
-                                                      controller.chatType);
-                                                  controller.textController
-                                                      .clear();
-                                                  controller.sendChatButton =
-                                                      false;
-
-                                                }
-                                              },
-                                              icon: Icon(
-                                                controller.sendChatButton
-                                                    ? Icons.send
-                                                    : Icons.mic,
-                                                color: Colors.white,
-                                              )),
-                                        ),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: Colors.grey),
+                                        borderRadius:
+                                            BorderRadius.circular(8.0),
                                       ),
-                                    ],
+                                      padding: const EdgeInsets.all(10.0),
+                                      margin: const EdgeInsets.all(20.0),
+                                      width: 300,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              GestureDetector(
+                                                onTap: () {
+                                                  controller.isReply = false;
+                                                  controller.replymessageid =
+                                                      Message();
+                                                },
+                                                child: const Icon(Icons.close),
+                                              ),
+                                            ],
+                                          ),
+                                          Text(
+                                            '${controller.replymessageid.senderId}',
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          const SizedBox(height: 5),
+                                          Text(
+                                              '${controller.replymessageid.text}'),
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                                ],
+                                )
+                              : const SizedBox(),
+                          Container(
+                            height: 70,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade200,
+                              borderRadius: const BorderRadius.only(
+                                bottomLeft: Radius.circular(20.0),
+                                bottomRight: Radius.circular(20.0),
                               ),
                             ),
-                            controller.showEmoji? Container(
-                              width: MediaQuery.of(context).size.width,
-                              height:300,
-                              color: Colors.deepOrange.shade50,
-                              child: EmojiPicker(
-                                onEmojiSelected: null,
-                                onBackspacePressed: () {
-                                  // Do something when the user taps the backspace button (optional)
-                                  // Set it to null to hide the Backspace-Button
-                                },
-                                textEditingController: controller.textController, // pass here the same [TextEditingController] that is connected to your input field, usually a [TextFormField]
-                                config: Config(
-                                  columns: 7,
-                                  emojiSizeMax: 32 * (foundation.defaultTargetPlatform == TargetPlatform.iOS ? 1.30 : 1.0), // Issue: https://github.com/flutter/flutter/issues/28894
-                                  verticalSpacing: 0,
-                                  horizontalSpacing: 0,
-                                  gridPadding: EdgeInsets.zero,
-                                  initCategory: Category.RECENT,
-                                  bgColor: Color(0xFFF2F2F2),
-                                  indicatorColor: Colors.blue,
-                                  iconColor: Colors.grey,
-                                  iconColorSelected: Colors.blue,
-                                  backspaceColor: Colors.blue,
-                                  skinToneDialogBgColor: Colors.white,
-                                  skinToneIndicatorColor: Colors.grey,
-                                  enableSkinTones: true,
-                                  recentTabBehavior: RecentTabBehavior.RECENT,
-                                  recentsLimit: 28,
-                                  noRecents: const Text(
-                                    'No Recents',
-                                    style: TextStyle(fontSize: 20, color: Colors.black26),
-                                    textAlign: TextAlign.center,
-                                  ), // Needs to be const Widget
-                                  loadingIndicator: const SizedBox.shrink(), // Needs to be const Widget
-                                  tabIndicatorAnimDuration: kTabScrollDuration,
-                                  categoryIcons: const CategoryIcons(),
-                                  buttonMode: ButtonMode.MATERIAL,
-                                ),
-                              )
-                              ,
-                            ):SizedBox(),
-                          ],
-                        ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [bootomin()],
+                            ),
+                          ),
+                          controller.showEmoji
+                              ? Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  height: 300,
+                                  color: Colors.deepOrange.shade50,
+                                  child: EmojiPicker(
+                                    onEmojiSelected: null,
+                                    onBackspacePressed: () {
+                                      // Do something when the user taps the backspace button (optional)
+                                      // Set it to null to hide the Backspace-Button
+                                    },
+                                    textEditingController:
+                                        controller.textController,
+                                    // pass here the same [TextEditingController] that is connected to your input field, usually a [TextFormField]
+                                    config: Config(
+                                      columns: 7,
+                                      emojiSizeMax: 32 *
+                                          (foundation.defaultTargetPlatform ==
+                                                  TargetPlatform.iOS
+                                              ? 1.30
+                                              : 1.0),
+                                      // Issue: https://github.com/flutter/flutter/issues/28894
+                                      verticalSpacing: 0,
+                                      horizontalSpacing: 0,
+                                      gridPadding: EdgeInsets.zero,
+                                      initCategory: Category.RECENT,
+                                      bgColor: Color(0xFFF2F2F2),
+                                      indicatorColor: Colors.blue,
+                                      iconColor: Colors.grey,
+                                      iconColorSelected: Colors.blue,
+                                      backspaceColor: Colors.blue,
+                                      skinToneDialogBgColor: Colors.white,
+                                      skinToneIndicatorColor: Colors.grey,
+                                      enableSkinTones: true,
+                                      recentTabBehavior:
+                                          RecentTabBehavior.RECENT,
+                                      recentsLimit: 28,
+                                      noRecents: const Text(
+                                        'No Recents',
+                                        style: TextStyle(
+                                            fontSize: 20,
+                                            color: Colors.black26),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      // Needs to be const Widget
+                                      loadingIndicator: const SizedBox.shrink(),
+                                      // Needs to be const Widget
+                                      tabIndicatorAnimDuration:
+                                          kTabScrollDuration,
+                                      categoryIcons: const CategoryIcons(),
+                                      buttonMode: ButtonMode.MATERIAL,
+                                    ),
+                                  ),
+                                )
+                              : SizedBox(),
+                        ],
                       ),
-                    ],
-                  ),
-                  onWillPop: () {
-                    if (controller.showEmoji == true) {
-                      // setState(() {
-                      //   showEmoji = false;
-                      // });
-                      controller.showEmoji = false;
-                    } else {
-                      Navigator.pop(context);
-                    }
-                    return Future.value(false);
-                  },
+                    ),
+                  ],
                 ),
-              ))
-          : shareImageVideo(controller, context);
+                onWillPop: () {
+                  if (controller.showEmoji == true) {
+                    // setState(() {
+                    //   showEmoji = false;
+                    // });
+                    controller.showEmoji = false;
+                  } else {
+                    Navigator.pop(context);
+                  }
+                  return Future.value(false);
+                },
+              ),
+            ));
+      } else {
+        return shareImageVideo(controller, context);
+      }
     });
   }
+
   void _hideKeyboard(BuildContext context) {
     FocusScope.of(context).requestFocus(FocusNode());
     // Alternatively, you can use:
     // FocusScope.of(context).unfocus();
   }
-
 
   Widget bottomSheet(BuildContext context) {
     //print("SDF SDF SDF ");
@@ -618,7 +511,7 @@ class _IndividualChatState extends State<IndividualChat>
   Widget emojiSelect() {
     return Flexible(
       child: SizedBox(
-        width: 400,
+          width: 400,
           height: 100,
           child: EmojiPicker(
             onEmojiSelected: null,
@@ -626,10 +519,15 @@ class _IndividualChatState extends State<IndividualChat>
               // Do something when the user taps the backspace button (optional)
               // Set it to null to hide the Backspace-Button
             },
-            textEditingController: controller.textController, // pass here the same [TextEditingController] that is connected to your input field, usually a [TextFormField]
+            textEditingController: controller.textController,
+            // pass here the same [TextEditingController] that is connected to your input field, usually a [TextFormField]
             config: Config(
               columns: 7,
-              emojiSizeMax: 32 * (foundation.defaultTargetPlatform == TargetPlatform.iOS ? 1.30 : 1.0), // Issue: https://github.com/flutter/flutter/issues/28894
+              emojiSizeMax: 32 *
+                  (foundation.defaultTargetPlatform == TargetPlatform.iOS
+                      ? 1.30
+                      : 1.0),
+              // Issue: https://github.com/flutter/flutter/issues/28894
               verticalSpacing: 0,
               horizontalSpacing: 0,
               gridPadding: EdgeInsets.zero,
@@ -648,8 +546,10 @@ class _IndividualChatState extends State<IndividualChat>
                 'No Recents',
                 style: TextStyle(fontSize: 20, color: Colors.black26),
                 textAlign: TextAlign.center,
-              ), // Needs to be const Widget
-              loadingIndicator: const SizedBox.shrink(), // Needs to be const Widget
+              ),
+              // Needs to be const Widget
+              loadingIndicator: const SizedBox.shrink(),
+              // Needs to be const Widget
               tabIndicatorAnimDuration: kTabScrollDuration,
               categoryIcons: const CategoryIcons(),
               buttonMode: ButtonMode.MATERIAL,
@@ -659,32 +559,37 @@ class _IndividualChatState extends State<IndividualChat>
   }
 
   normalAppBar() {
-    return
-      AppBar(
+    return AppBar(
       leadingWidth: 80,
       titleSpacing: 0,
       leading: InkWell(
         onTap: () {
-        Navigator.pop(context);
+          !ScreenUtils.isLargeScreen(context) ? Navigator.pop(context) : null;
         },
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.arrow_back, size: 24),
-            CircleAvatar(
-              //widget.chatsModel.isGroup ? Icons.groups :
-              backgroundColor: Colors.purple[400],
-              backgroundImage: NetworkImage(controller.userModel.profileImage!),
-              radius: 25,
-              //widget.chatsModel.isGroup ? Icons.groups :
-              // child:
-              //     const Icon(Icons.person, color: Colors.white, size: 38),
+            ScreenUtils.isLargeScreen(context)
+                ? SizedBox()
+                : const Icon(Icons.arrow_back, size: 24),
+            InkWell(
+              onTap: () {},
+              child: CircleAvatar(
+                //widget.chatsModel.isGroup ? Icons.groups :
+                backgroundColor: Colors.purple[400],
+                backgroundImage:
+                    NetworkImage(controller.userModel.profileImage!),
+                radius: 25,
+                //widget.chatsModel.isGroup ? Icons.groups :
+                // child:
+                //     const Icon(Icons.person, color: Colors.white, size: 38),
+              ),
             )
           ],
         ),
       ),
       title: InkWell(
-        onTap: () {},
+        onTap: null,
         child: Container(
           margin: const EdgeInsets.all(6),
           child: Column(
@@ -702,35 +607,44 @@ class _IndividualChatState extends State<IndividualChat>
         ),
       ),
       actions: [
-        IconButton(onPressed: () {
-          DateTime time = DateTime.now();
-
-          var channelid='${controller.userModel?.id}${time.millisecondsSinceEpoch}';
-          //userId,name,imageUrl,channelId,context
-          controller.makeCall('${controller.userModel?.id}',
-            '${controller.userModel?.fname} ',
-            '${controller.userModel?.profileImage}',
-              channelid,
-            context,'${controller.userModel.lname}'
-          );
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(
-          //     builder: (context) => CallReceiveScreen(
-          //       name: '${controller.userModel?.fname} ${controller.userModel.lname}',
-          //       imageUrl: '${controller.userModel?.profileImage}',
-          //       userId: '${controller.userModel?.id}',
-          //       receivecall: false,
-          //       channelId: channelid,
-          //     ),
-          //   ),
-          // );
-
-        }, icon: const Icon(Icons.videocam,color: Colors.deepPurple,)),
-
-
+        IconButton(
+            onPressed: () {
+              DateTime time = DateTime.now();
+              var channelid =
+                  '${controller.userModel?.id}${time.millisecondsSinceEpoch}';
+              //userId,name,imageUrl,channelId,context
+              controller.makeCall(
+                  '${controller.userModel?.id}',
+                  '${controller.userModel?.fname} ',
+                  '${controller.userModel?.profileImage}',
+                  channelid,
+                  context,
+                  '${controller.userModel.lname}');
+            },
+            icon: const Icon(
+              Icons.videocam,
+              color: Colors.deepPurple,
+            )),
+        IconButton(
+            onPressed: () {
+              DateTime time = DateTime.now();
+              var channelid =
+                  '${controller.userModel?.id}${time.millisecondsSinceEpoch}';
+              //userId,name,imageUrl,channelId,context
+              controller.makeAudioCall(
+                  '${controller.userModel?.id}',
+                  '${controller.userModel?.fname} ',
+                  '${controller.userModel?.profileImage}',
+                  channelid,
+                  context,
+                  '${controller.userModel.lname}');
+            },
+            icon: const Icon(
+              Icons.call,
+              color: Colors.deepPurple,
+            )),
         PopupMenuButton<String>(onSelected: (value) {
-          //print(value);
+          print(value);
         }, itemBuilder: (BuildContext context) {
           return [
             const PopupMenuItem(
@@ -765,9 +679,11 @@ class _IndividualChatState extends State<IndividualChat>
 
   deleteMessageAppbar(IndividualChatController controller) {
     return AppBar(
-      leading:
-          InkWell(onTap: () {}, child: const Icon(Icons.arrow_back, size: 24)),
-      title: const Text("Messages"),
+      leading: ScreenUtils.isLargeScreen(context)
+          ? SizedBox()
+          : InkWell(
+              onTap: () {}, child: const Icon(Icons.arrow_back, size: 24)),
+      title: const Text("Delete Messages"),
       actions: <Widget>[
         IconButton(
           icon: const Icon(Icons.delete),
@@ -778,7 +694,7 @@ class _IndividualChatState extends State<IndividualChat>
         IconButton(
           icon: const Icon(Icons.copy),
           onPressed: () {
-           // showDeleteDialog(context, controller);
+            // showDeleteDialog(context, controller);
           },
         ),
         IconButton(
@@ -796,12 +712,11 @@ class _IndividualChatState extends State<IndividualChat>
 /*todo----current loggedin use view*/
   currentUserView(IndividualChatController controller, context, index) {
     var data = controller.messageList[index];
-   // print(data.mediaurl);
+    // print(data.mediaurl);
     //print("${controller.messageList[index].messageType} SDF SDF MessageType");
 //    print(data.deleteMessageUser!.contains(controller.currentUserid));
 
-
-    String textWithLink = controller.messageList[index].text??"";
+    String textWithLink = controller.messageList[index].text ?? "";
     RegExp regExp = RegExp(
         r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+',
         caseSensitive: false);
@@ -816,7 +731,8 @@ class _IndividualChatState extends State<IndividualChat>
     List<String> splitText = textWithLink.split(regExp);
 
     for (int i = 0; i < splitText.length; i++) {
-      textSpans.add(TextSpan(text: splitText[i], style: const TextStyle(color: Colors.black)));
+      textSpans.add(TextSpan(
+          text: splitText[i], style: const TextStyle(color: Colors.black)));
       if (i < extractedLinks.length) {
         textSpans.add(
           TextSpan(
@@ -827,7 +743,7 @@ class _IndividualChatState extends State<IndividualChat>
             ),
             recognizer: TapGestureRecognizer()
               ..onTap = () {
-              print("SDF SDF SDF ");
+                print("SDF SDF SDF ");
                 _launchURL(extractedLinks[i]);
               },
           ),
@@ -840,8 +756,6 @@ class _IndividualChatState extends State<IndividualChat>
         : Align(
             alignment: Alignment.centerRight,
             child: GestureDetector(
-
-
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxWidth:
@@ -967,44 +881,64 @@ class _IndividualChatState extends State<IndividualChat>
                                               )
                                             ],
                                           )
-                                        : Column(//todo-----ye normal message ka view hai, App link preview k sath
-                                      children: <Widget>[
-                                        if(extractedLinks.isNotEmpty)
-                                        for (String link in extractedLinks)
-                                          AnyLinkPreview(
-                                            link: link,
-                                            displayDirection: UIDirection.uiDirectionHorizontal,
-                                            showMultimedia: false,
-                                            bodyMaxLines: 5,
-                                            bodyTextOverflow: TextOverflow.ellipsis,
-                                            titleStyle: const TextStyle(
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 15,
-                                            ),
-                                            bodyStyle: const TextStyle(color: Colors.grey, fontSize: 12),
-                                            errorBody: 'Show my custom error body',
-                                            errorTitle: 'Show my custom error title',
-                                            errorWidget: const SizedBox(),
-                                            errorImage: "https://google.com/",
-                                            cache: const Duration(days: 7),
-                                            backgroundColor: Colors.grey[300],
-                                            borderRadius: 12,
-                                            removeElevation: false,
-                                            boxShadow: [const BoxShadow(blurRadius: 3, color: Colors.grey)],
-                                            onTap: () {
-                                              _launchURL(link);
-                                            }, // This disables tap event
-                                          ).paddingOnly(bottom: 10),
-
-                                       SelectionArea(child:  RichText(
-                                         text: TextSpan(
-                                           style: const TextStyle(color: Colors.black), // Set the default text color
-                                           children: textSpans,
-                                         ),
-                                       ),)
-                                      ],
-                                    ) /*todo---ye normal message hai bina kisi reply ka*/
+                                        : Column(
+                                            //todo-----ye normal message ka view hai, App link preview k sath
+                                            children: <Widget>[
+                                              if (extractedLinks.isNotEmpty)
+                                                for (String link
+                                                    in extractedLinks)
+                                                  AnyLinkPreview(
+                                                    link: link,
+                                                    displayDirection: UIDirection
+                                                        .uiDirectionHorizontal,
+                                                    showMultimedia: false,
+                                                    bodyMaxLines: 5,
+                                                    bodyTextOverflow:
+                                                        TextOverflow.ellipsis,
+                                                    titleStyle: const TextStyle(
+                                                      color: Colors.black,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 15,
+                                                    ),
+                                                    bodyStyle: const TextStyle(
+                                                        color: Colors.grey,
+                                                        fontSize: 12),
+                                                    errorBody:
+                                                        'Show my custom error body',
+                                                    errorTitle:
+                                                        'Show my custom error title',
+                                                    errorWidget:
+                                                        const SizedBox(),
+                                                    errorImage:
+                                                        "https://google.com/",
+                                                    cache:
+                                                        const Duration(days: 7),
+                                                    backgroundColor:
+                                                        Colors.grey[300],
+                                                    borderRadius: 12,
+                                                    removeElevation: false,
+                                                    boxShadow: [
+                                                      const BoxShadow(
+                                                          blurRadius: 3,
+                                                          color: Colors.grey)
+                                                    ],
+                                                    onTap: () {
+                                                      _launchURL(link);
+                                                    }, // This disables tap event
+                                                  ).paddingOnly(bottom: 10),
+                                              SelectionArea(
+                                                child: RichText(
+                                                  text: TextSpan(
+                                                    style: const TextStyle(
+                                                        color: Colors.black),
+                                                    // Set the default text color
+                                                    children: textSpans,
+                                                  ),
+                                                ),
+                                              )
+                                            ],
+                                          ) /*todo---ye normal message hai bina kisi reply ka*/
                                   ],
                                 ),
                               ),
@@ -1058,7 +992,7 @@ class _IndividualChatState extends State<IndividualChat>
     var data = controller.messageList[index];
     print(controller.userModel.id);
     print(data.deleteMessageUser!.contains(controller.userModel.id));
-    String textWithLink = controller.messageList[index].text??"";
+    String textWithLink = controller.messageList[index].text ?? "";
     RegExp regExp = RegExp(
         r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+',
         caseSensitive: false);
@@ -1069,13 +1003,11 @@ class _IndividualChatState extends State<IndividualChat>
       extractedLinks.add(match.group(0)!);
     }
 
-
-
-
     List<TextSpan> textSpans = [];
     List<String> splitText = textWithLink.split(regExp);
     for (int i = 0; i < splitText.length; i++) {
-      textSpans.add(TextSpan(text: splitText[i], style: const TextStyle(color: Colors.black)));
+      textSpans.add(TextSpan(
+          text: splitText[i], style: const TextStyle(color: Colors.black)));
       if (i < extractedLinks.length) {
         textSpans.add(
           TextSpan(
@@ -1103,7 +1035,6 @@ class _IndividualChatState extends State<IndividualChat>
                 controller.isReply = true;
                 controller.replymessageid = controller.messageList[index];
               },
-
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxWidth:
@@ -1230,48 +1161,60 @@ class _IndividualChatState extends State<IndividualChat>
                                               )
                                             ],
                                           )
-                                        :
-                                    Column(
-                                      children: <Widget>[
-
-                                        if(extractedLinks.isNotEmpty)
-                                          for (String link in extractedLinks)
-                                            AnyLinkPreview(
-                                              link: link,
-                                              displayDirection: UIDirection.uiDirectionVertical,
-                                              showMultimedia: false,
-                                              bodyMaxLines: 5,
-                                              bodyTextOverflow: TextOverflow.ellipsis,
-                                              titleStyle: const TextStyle(
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 15,
+                                        : Column(
+                                            children: <Widget>[
+                                              if (extractedLinks.isNotEmpty)
+                                                for (String link
+                                                    in extractedLinks)
+                                                  AnyLinkPreview(
+                                                    link: link,
+                                                    displayDirection: UIDirection
+                                                        .uiDirectionVertical,
+                                                    showMultimedia: false,
+                                                    bodyMaxLines: 5,
+                                                    bodyTextOverflow:
+                                                        TextOverflow.ellipsis,
+                                                    titleStyle: const TextStyle(
+                                                      color: Colors.black,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 15,
+                                                    ),
+                                                    bodyStyle: const TextStyle(
+                                                        color: Colors.grey,
+                                                        fontSize: 12),
+                                                    errorBody:
+                                                        'Show my custom error body',
+                                                    errorTitle:
+                                                        'Show my custom error title',
+                                                    errorWidget: Container(
+                                                      color: Colors.grey[300],
+                                                      child: const Text(''),
+                                                    ),
+                                                    errorImage:
+                                                        "https://google.com/",
+                                                    cache:
+                                                        const Duration(days: 7),
+                                                    backgroundColor:
+                                                        Colors.grey[300],
+                                                    borderRadius: 12,
+                                                    removeElevation: false,
+                                                    boxShadow: [
+                                                      const BoxShadow(
+                                                          blurRadius: 3,
+                                                          color: Colors.grey)
+                                                    ],
+                                                    onTap: () {
+                                                      _launchURL(link);
+                                                    }, // This disables tap event
+                                                  ),
+                                              RichText(
+                                                text: TextSpan(
+                                                    children: textSpans),
                                               ),
-                                              bodyStyle: const TextStyle(color: Colors.grey, fontSize: 12),
-                                              errorBody: 'Show my custom error body',
-                                              errorTitle: 'Show my custom error title',
-                                              errorWidget: Container(
-                                                color: Colors.grey[300],
-                                                child: const Text(''),
-                                              ),
-                                              errorImage: "https://google.com/",
-                                              cache: const Duration(days: 7),
-                                              backgroundColor: Colors.grey[300],
-                                              borderRadius: 12,
-                                              removeElevation: false,
-                                              boxShadow: [const BoxShadow(blurRadius: 3, color: Colors.grey)],
-                                              onTap: () {
-                                                _launchURL(link);
-                                              }, // This disables tap event
-                                            ),
-                                        RichText(
-                                          text: TextSpan(children: textSpans),
-                                        ),
-                                        /*todo---ye normal message hai bina kisi reply ka*/
-
-                                      ],
-                                    )
-
+                                              /*todo---ye normal message hai bina kisi reply ka*/
+                                            ],
+                                          )
                                   ],
                                 ),
                               ),
@@ -1402,8 +1345,7 @@ class _IndividualChatState extends State<IndividualChat>
                           icon: const Icon(
                             Icons.send,
                             color: Colors.white,
-                          )
-                      ),
+                          )),
                     ),
                   ),
                 ],
@@ -1418,7 +1360,7 @@ class _IndividualChatState extends State<IndividualChat>
   Widget contactView(name, number) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child:  Container(
+      child: Container(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1460,6 +1402,188 @@ class _IndividualChatState extends State<IndividualChat>
         ),
       ),
     );
+  }
+
+  Widget bootomin() {
+    if (ScreenUtils.isLargeScreen(context)) {
+      return Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Container(
+                width: MediaQuery.of(context).size.width,
+                child: Card(
+                    margin: const EdgeInsets.only(left: 2, right: 2, bottom: 8),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25)),
+                    child: TextFormField(
+                      controller: controller.textController,
+                      focusNode: focusNode,
+                      textAlignVertical: TextAlignVertical.center,
+                      keyboardType: TextInputType.multiline,
+                      maxLines: 5,
+                      minLines: 1,
+                      onChanged: (value) {
+                        if (value.length > 0) {
+                          controller.sendChatButton = true;
+                          controller.updateTypingStaus(true);
+                          controller.isTyping = true;
+                        } else {
+                          controller.sendChatButton = false;
+                          controller.isTyping = false;
+                          controller.updateTypingStaus(false);
+                        }
+                      },
+                      decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: "Type your message",
+                          suffixIcon: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                  onPressed: () {
+                                    showModalBottomSheet(
+                                        backgroundColor: Colors.transparent,
+                                        context: context,
+                                        builder: (builder) =>
+                                            bottomSheet(context));
+                                  },
+                                  icon: const Icon(Icons.attach_file)),
+                              IconButton(
+                                  onPressed: () {},
+                                  icon: const Icon(Icons.camera))
+                            ],
+                          ),
+                          contentPadding: const EdgeInsets.all(5),
+                          prefixIcon: IconButton(
+                            icon: Icon(controller.showEmoji
+                                ? Icons.keyboard
+                                : Icons.emoji_emotions),
+                            onPressed: () {
+                              if (!controller.showEmoji) {
+                                focusNode.unfocus();
+                                focusNode.canRequestFocus = false;
+                              }
+                              controller.showEmoji = !controller.showEmoji;
+                              _hideKeyboard(context);
+                            },
+                          )),
+                    ))),
+          ),
+          Expanded(
+              child: Padding(
+            padding: const EdgeInsets.only(bottom: 8.0, right: 2),
+            child: CircleAvatar(
+              radius: 25,
+              backgroundColor: Colors.purple[400],
+              child: IconButton(
+                  onPressed: () {
+                    if (controller.sendChatButton) {
+                      controller.chatType = "text";
+                      controller.sendMessage(
+                          controller.userModel,
+                          controller.textController.text.toString(),
+                          controller.chatType);
+                      controller.textController.clear();
+                      controller.sendChatButton = false;
+                    }
+                  },
+                  icon: Icon(
+                    controller.sendChatButton ? Icons.send : Icons.mic,
+                    color: Colors.white,
+                  )),
+            ),
+          )),
+        ],
+      );
+    } else {
+      return Row(
+        children: [
+          Container(
+              width: MediaQuery.of(context).size.width - 55,
+              child: Card(
+                  margin: const EdgeInsets.only(left: 2, right: 2, bottom: 8),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25)),
+                  child: TextFormField(
+                    controller: controller.textController,
+                    focusNode: focusNode,
+                    textAlignVertical: TextAlignVertical.center,
+                    keyboardType: TextInputType.multiline,
+                    maxLines: 5,
+                    minLines: 1,
+                    onChanged: (value) {
+                      if (value.length > 0) {
+                        controller.sendChatButton = true;
+                        controller.updateTypingStaus(true);
+                        controller.isTyping = true;
+                      } else {
+                        controller.sendChatButton = false;
+                        controller.isTyping = false;
+                        controller.updateTypingStaus(false);
+                      }
+                    },
+                    decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: "Type your message",
+                        suffixIcon: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                                onPressed: () {
+                                  showModalBottomSheet(
+                                      backgroundColor: Colors.transparent,
+                                      context: context,
+                                      builder: (builder) =>
+                                          bottomSheet(context));
+                                },
+                                icon: const Icon(Icons.attach_file)),
+                            IconButton(
+                                onPressed: () {},
+                                icon: const Icon(Icons.camera))
+                          ],
+                        ),
+                        contentPadding: const EdgeInsets.all(5),
+                        prefixIcon: IconButton(
+                          icon: Icon(controller.showEmoji
+                              ? Icons.keyboard
+                              : Icons.emoji_emotions),
+                          onPressed: () {
+                            if (!controller.showEmoji) {
+                              focusNode.unfocus();
+                              focusNode.canRequestFocus = false;
+                            }
+                            controller.showEmoji = !controller.showEmoji;
+                            _hideKeyboard(context);
+                          },
+                        )),
+                  ))),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8.0, right: 2),
+            child: CircleAvatar(
+              radius: 25,
+              backgroundColor: Colors.purple[400],
+              child: IconButton(
+                  onPressed: () {
+                    if (controller.sendChatButton) {
+                      controller.chatType = "text";
+                      controller.sendMessage(
+                          controller.userModel,
+                          controller.textController.text.toString(),
+                          controller.chatType);
+                      controller.textController.clear();
+                      controller.sendChatButton = false;
+                    }
+                  },
+                  icon: Icon(
+                    controller.sendChatButton ? Icons.send : Icons.mic,
+                    color: Colors.white,
+                  )),
+            ),
+          ),
+        ],
+      );
+    }
   }
 
   @override
@@ -1532,8 +1656,7 @@ class _IndividualChatState extends State<IndividualChat>
   }
 
   Future<void> _launchURL(String url) async {
-
-    if (!    await launchUrl(Uri.parse(url))) {
+    if (!await launchUrl(Uri.parse(url))) {
       throw Exception('Could not launch $url');
     }
   }

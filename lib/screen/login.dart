@@ -33,41 +33,52 @@ class Login extends StatelessWidget {
             child: SingleChildScrollView(
               child: Form(
                 key: contorller.loginFormGlobalKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    _logoImage(height),
-                    Gap(height * 0.06),
-                    _loginText(height, width, context),
-                    Gap(height * 0.02),
-                    _emailTextField(contorller),
-                    Gap(height * 0.03),
-                    _passwordTextField(contorller),
-                    Gap(height * 0.03),
-                     Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(right: 20),
-                          child: InkWell(
-                            onTap: () {
+                child: Padding(
+                  padding: ScreenUtils.isLargeScreen(context)?
+                  EdgeInsets.only(left: MediaQuery.of(context).size.width*0.2,
+                   right:MediaQuery.of(context).size.width*0.2)
 
-                              controller.resetPassword(contorller.emailController.value.text);
-                            },
-                            child: Text("Forgot Password",style: TextStyle(
-                              fontSize: 18.0,fontWeight: FontWeight.bold,color: Colors.indigo
-                            ),),
+                      : EdgeInsets.all(1.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      _logoImage(height),
+                      Gap(height * 0.06),
+                      _loginText(height, width, context),
+                      Gap(height * 0.02),
+                      _emailTextField(contorller),
+                      Gap(height * 0.03),
+                      _passwordTextField(contorller),
+                      Gap(height * 0.03),
+                       Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(right: 20),
+                            child: InkWell(
+
+                              onTap: () {
+
+                                controller.resetPassword(contorller.emailController.value.text);
+                              },
+                              child: Transform.scale(
+                                scale: controller.isHovered ? 1.3 : 1.0,
+                                child: Text("Forgot Password",style: TextStyle(
+                                  fontSize: 18.0,fontWeight: FontWeight.bold,color: Colors.indigo
+                                ),),
+                              ),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    _agreeTermsRow(width, height, context, contorller),
-                    Gap(height * 0.1 + 14),
-                    _loginButton(context, width, height, contorller),
-                    const Gap(6),
-                    _createAccountText(context, width, height)
-                  ],
+                        ],
+                      ),
+                      _agreeTermsRow(width, height, context, contorller),
+                      Gap(height * 0.1 + 14),
+                      _loginButton(context, width, height, contorller),
+                      const Gap(6),
+                      _createAccountText(context, width, height)
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -209,7 +220,7 @@ class Login extends StatelessWidget {
              context: context,
              password: controller.passwordController.value.text);
       }
-    }).paddingOnly(
+    },contorller).paddingOnly(
         left:
             ScreenUtils.isSmallScreen(context) ? width * 0.1 + 22 : width * 0.2,
         right: ScreenUtils.isSmallScreen(context)

@@ -26,7 +26,13 @@ class LoginController extends GetxController {
   }
 
 
+  final _isHovered = false.obs;
+  bool get isHovered => _isHovered.value;
 
+  set isHovered(bool flag) {
+    _isHovered.value = flag;
+    update();
+  }
 
 
 
@@ -42,7 +48,7 @@ class LoginController extends GetxController {
           'id':user.uid,
         };
         await FBCollections.users.doc(user.uid).set(userData);
-        saveToken(user.uid);
+           saveToken(user.uid);
         CommonDialog.hideLoading();
         CommonDialog.showsnackbar(
             "Email verification link has been sent to you email");

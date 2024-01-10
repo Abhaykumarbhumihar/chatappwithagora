@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_caht_module/agora_code/agora_audio/voice_call_start.dart';
 import 'package:flutter_caht_module/controllers/profilecontroller.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -58,6 +59,26 @@ class IndividualChatController extends GetxController {
 
   set callactiveornotstatus(bool status) {
     _callactiveornotstatus.value = status;
+    update();
+  }
+
+  /// audio call active or disconnect
+  final _audiocallactiveornotstatus = true.obs;
+
+  bool get audiocallactiveornotstatus => _audiocallactiveornotstatus.value;
+
+  set audiocallactiveornotstatus(bool status) {
+    _audiocallactiveornotstatus.value = status;
+    update();
+  }
+
+  /// audio call calling or ringing
+  final _audiocallringingornotstatus = "".obs;
+
+  String get audiocallringingornotstatus => _audiocallringingornotstatus.value;
+
+  set audiocallringingornotstatus(String status) {
+    _audiocallringingornotstatus.value = status;
     update();
   }
 
@@ -389,7 +410,7 @@ class IndividualChatController extends GetxController {
   void copyToClipboard(List<String> messages, BuildContext context) {
     String concatenatedMessages = messages.join('\n');
     Clipboard.setData(ClipboardData(text: concatenatedMessages));
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       content: Text('Messages copied to clipboard'),
     ));
   }
@@ -717,8 +738,8 @@ class IndividualChatController extends GetxController {
     await FBCollections.videocall.doc(userlist.join('-')).set(userData);
     print("CHAT CREATED HEREEE ${channelId}");
     await fetchDataforcreater(
-        channelId, context, userId, fname, imageUrl, lname);
-    getFirebaseTokenforcall(userId, channelId, fname, imageUrl);
+        channelId, context, userId, fname, imageUrl, lname,"video");
+    getFirebaseTokenforcall(userId, channelId, fname, imageUrl,"video",true,false);
   }
 
   ///call ring ho raha ya nahi ye update krne k liye
@@ -728,6 +749,7 @@ class IndividualChatController extends GetxController {
     };
     await FBCollections.videocall.doc(callid).update(userData);
   }
+
 
   ///call disconnect
   leaveDisconnectCall(userId,context) async {
@@ -746,7 +768,7 @@ class IndividualChatController extends GetxController {
   }
 
   fetchDataforcreater(
-      channelName, context, userId, name, imageUrl, lname) async {
+      channelName, context, userId, name, imageUrl, lname,calltype) async {
     // URL and request body
     const String url =
         'https://api.vegansmeetdaily.com/api/v1/users/create_agora_token';
@@ -766,20 +788,31 @@ class IndividualChatController extends GetxController {
 
       // Access the data field
       String token = responseData['data'];
+if(calltype=="video"){
+  Get.to(VideoCallScreen(
+    imageUrl: imageUrl,
+    fname: name,
+    lname: lname,
+    userId: userId,
+    receivecall: true,
+    channelId: channelName,
+    agoratoken: responseData['data'],
+  ));
+}else {
+  Get.to(VoiceCallScrenn(
+    imageUrl: imageUrl,
+    fname: name,
+    lname: lname,
+    userId: userId,
+    receivecall: true,
+    channelId: channelName,
+    agoratoken: responseData['data'],
+  ));
+}
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) => VideoCallScreen(
-                  imageUrl: imageUrl,
-                  fname: name,
-                  lname: lname,
-                  userId: userId,
-                  receivecall: true,
-                  channelId: channelName,
-                  agoratoken: responseData['data'],
-                )),
-      );
+
+
+
 
       // Handle the token as needed
       print('Token: $token');
@@ -790,7 +823,7 @@ class IndividualChatController extends GetxController {
   }
 
   Future<String?> getFirebaseTokenforcall(
-      userID, channelidd, name, imageUrl) async {
+      userID, channelidd, name, imageUrl,calltype,isvideocall,isvoicecall) async {
     try {
       DocumentSnapshot docSnapshot =
           await FBCollections.tokens.doc('${userID}').get();
@@ -805,7 +838,7 @@ class IndividualChatController extends GetxController {
         userToken = token;
         update();
         sendNotificationforcall("Video call ", channelidd, userData['token'],
-            userID, name, imageUrl);
+            userID, name, imageUrl,calltype,isvideocall,isvoicecall);
         return token;
       } else {
         print('Document does not exist for $userID');
@@ -818,7 +851,7 @@ class IndividualChatController extends GetxController {
   }
 
   void sendNotificationforcall(
-      message, channelid, token, userID, name, imageUrl) async {
+      message, channelid, token, userID, name, imageUrl,calltype,isvideocall,isvoicecall) async {
     // Define the FCM server URL and your server key
     const String url = 'https://fcm.googleapis.com/fcm/send';
     const String serverKey =
@@ -832,13 +865,15 @@ class IndividualChatController extends GetxController {
         "title": "Video Call",
         "body": message,
         "custom_key": "videocall",
-        "videocall": true,
+        "videocall": isvideocall,
+        "voicecall":isvoicecall,
         "channelid": channelid,
         "userid": _auth.getCurrentUser()!.uid, //ye jo call krega uska id hai,
         "receiverid": userID,
         "fname": Get.find<ProfileController>().usermodel.value.fname.toString(),
         "lname": Get.find<ProfileController>().usermodel.value.lname.toString(),
         "imageurl": Get.find<ProfileController>().usermodel.value.profileImage,
+        "calltype":calltype
       },
       "to": "$token"
     };
@@ -904,5 +939,87 @@ class IndividualChatController extends GetxController {
       }
 
     });
+  }
+
+
+
+
+
+  ///agora audio call------------------audio call-----------------------audio call------------
+  void makeAudioCall(userId, fname, imageUrl, channelId, context, lname) async {
+    print("MAKE CALL RUNNING HERE");
+
+    var userlist = [];
+    userlist.add(userId);
+    userlist.add(_auth.getCurrentUser()!.uid);
+    userlist.sort();
+    print(userlist.join('-'));
+    Map<String, dynamic> userData = {
+      "receiverid": userId,
+      "receiverfname": fname,
+      "receiverlname": lname,
+      "receiverimage": imageUrl,
+      "sendername":
+      "${Get.find<ProfileController>().usermodel.value.fname} ${Get.find<ProfileController>().usermodel.value.lname}",
+      "senderimage":
+      "${Get.find<ProfileController>().usermodel.value.profileImage}",
+      "senderid": _auth.getCurrentUser()!.uid,
+      "channelid": channelId,
+      'commonusers': [userId, _auth.getCurrentUser()!.uid],
+      'activecall': true,
+      'callingstatus': "calling",
+      'calldisconnectby': '',
+
+    };
+    await FBCollections.audioCall.doc(userlist.join('-')).set(userData);
+    print("CHAT CREATED HEREEE ${channelId}");
+    await fetchDataforcreater(
+        channelId, context, userId, fname, imageUrl, lname,"audio");
+    getFirebaseTokenforcall(userId, channelId, fname, imageUrl,"audio",false,true);
+  }
+
+
+  Future<void> getAudioCallDetails() async {
+
+    if (Get.find<ProfileController>() == null) {
+      Get.put(ProfileController());
+    }
+    String userId = Get.find<ProfileController>().usermodel.value.id!;
+    var chatsCollection = FirebaseFirestore.instance
+        .collection('Audiocall')
+        .where('commonusers', arrayContains: userId)
+        .where('activecall', isEqualTo: true);
+    Stream<QuerySnapshot> chatStream = chatsCollection.snapshots();
+
+    chatStream.listen((QuerySnapshot chatQuerySnapshot) {
+      if (chatQuerySnapshot.docs.isEmpty) {
+        // No documents found
+        print("No active calls found");
+        _audiocallactiveornotstatus(false);
+        _audiocallringingornotstatus("");
+
+      }else{
+        for (QueryDocumentSnapshot document in chatQuerySnapshot.docs) {
+          Map<String, dynamic> chatData = document.data() as Map<String, dynamic>;
+          VideoCallData videoCallData = VideoCallData.fromMap(chatData);
+          print("CALL STATUS RUNNING");
+          print(videoCallData.channelId);
+          print(videoCallData.receiverfname);
+          print(videoCallData.senderName);
+          print(videoCallData.activeCall);
+          _audiocallactiveornotstatus(videoCallData.activeCall);
+          _audiocallringingornotstatus(videoCallData.callingstatus);
+          update();
+        }
+      }
+
+    });
+  }
+
+  audiocallringingornot(callid) async {
+    Map<String, dynamic> userData = {
+      'callingstatus': "ringing",
+    };
+    await FBCollections.audioCall.doc(callid).update(userData);
   }
 }

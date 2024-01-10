@@ -311,9 +311,11 @@
 //
 import 'dart:async';
 import 'dart:io';
+import 'package:story_view/story_view.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_caht_module/agora_code/makevideocall.dart';
@@ -322,6 +324,7 @@ import 'package:flutter_caht_module/screen/splash_screen.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'agora_code/agora_audio/voicecall_receve.dart';
 import 'controllers/individual_chat_controller.dart';
 import 'utils/AppLifecycleObserver.dart';
 
@@ -335,17 +338,32 @@ FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  if (Platform.isAndroid) {
+  if (kIsWeb) {
+    print("I AM HERE FIREBAE");
     await Firebase.initializeApp(
       options: const FirebaseOptions(
-        apiKey: 'AIzaSyB1F-rdst3N8Zcg03iPfHfZRtIT0Ge-NqA',
-        appId: '1:230877096711:android:4ac7c38d8dc5ceadd9b3a2',
-        messagingSenderId: '230877096711',
-        projectId: 'firereal-fffc4',
-      ),
+          apiKey: "AIzaSyDi6oXaQ4k5jNnRxpY5L4Ork5kpAmuoJxE",
+          authDomain: "firereal-fffc4.firebaseapp.com",
+          databaseURL: "https://firereal-fffc4.firebaseio.com",
+          projectId: "firereal-fffc4",
+          storageBucket: "firereal-fffc4.appspot.com",
+          messagingSenderId: "230877096711",
+          appId: "1:230877096711:web:adeb6cc332a37114d9b3a2"),
     );
   } else {
-    await Firebase.initializeApp();
+    print("I NOT   AM HERE FIREBAE");
+    if (Platform.isAndroid) {
+      await Firebase.initializeApp(
+        options: const FirebaseOptions(
+          apiKey: 'AIzaSyB1F-rdst3N8Zcg03iPfHfZRtIT0Ge-NqA',
+          appId: '1:230877096711:android:4ac7c38d8dc5ceadd9b3a2',
+          messagingSenderId: '230877096711',
+          projectId: 'firereal-fffc4',
+        ),
+      );
+    } else if (Platform.isIOS) {
+      await Firebase.initializeApp();
+    }
   }
 
   print('Handling a background message ${message.messageId}');
@@ -355,7 +373,6 @@ void showNotification(RemoteMessage message, {bool isVideoCall = false}) {
   RemoteNotification? notification = message.notification;
   AndroidNotification? android = message.notification?.android;
   var data = message.data;
-
 
   flutterLocalNotificationsPlugin.show(
     notification.hashCode,
@@ -367,12 +384,10 @@ void showNotification(RemoteMessage message, {bool isVideoCall = false}) {
         channel.name,
         playSound: true,
         icon: "@mipmap/ic_launcher",
-
       ),
     ),
   );
 }
-
 
 void handleVideoCallNotification(RemoteMessage message) {
   var videoChannelId = message.data?['channelid'];
@@ -389,22 +404,41 @@ void handleVideoCallNotification(RemoteMessage message) {
   var userlist = [receiverId, calleruserId]..sort();
   var userJoin = userlist.join('-');
   print("IN NOTIFICATION CALLING STATUS UPDATE  ${userJoin}");
+  var isvideocall = message.data?['videocall'];
+  var isaudiocall = message.data?['voicecall'];
 
-  myController.callringingornot(userJoin);
-myController.getCallDetails();
-  Get.to(CallReceiveScreen(
-    imageUrl: imageUrl,
-    fname: fname,
-    lname: lname,
-    userId: calleruserId,
-    receivecall: true,
-    channelId: videoChannelId,
-    receiverid: receiverId,
-  ));
+  if (isvideocall=="true") {
+    myController.callringingornot(
+      userJoin,
+    );
+    myController.getCallDetails();
+    Get.to(CallReceiveScreen(
+      imageUrl: imageUrl,
+      fname: fname,
+      lname: lname,
+      userId: calleruserId,
+      receivecall: true,
+      channelId: videoChannelId,
+      receiverid: receiverId,
+    ));
+  } else if (isaudiocall=="true") {
+    myController.audiocallringingornot(
+      userJoin,
+    );
+    myController.getAudioCallDetails();
+    Get.to(MakeVoiceCall(
+      imageUrl: imageUrl,
+      fname: fname,
+      lname: lname,
+      userId: calleruserId,
+      receivecall: true,
+      channelId: videoChannelId,
+      receiverid: receiverId,
+    ));
+  }
 
   showNotification(message, isVideoCall: true);
 }
-
 
 void handleRegularNotification(RemoteMessage message) {
   if (Get.isRegistered<IndividualChatController>()) {
@@ -428,18 +462,33 @@ Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
 
-    if (Platform.isAndroid) {
+    if (kIsWeb) {
+      print("I AM HERE FIREBAE");
       await Firebase.initializeApp(
         options: const FirebaseOptions(
-          apiKey: 'AIzaSyB1F-rdst3N8Zcg03iPfHfZRtIT0Ge-NqA',
-          appId: '1:230877096711:android:4ac7c38d8dc5ceadd9b3a2',
-          messagingSenderId: '230877096711',
-          projectId: 'firereal-fffc4',
-          storageBucket: "firereal-fffc4.appspot.com",
-        ),
+            apiKey: "AIzaSyDi6oXaQ4k5jNnRxpY5L4Ork5kpAmuoJxE",
+            authDomain: "firereal-fffc4.firebaseapp.com",
+            databaseURL: "https://firereal-fffc4.firebaseio.com",
+            projectId: "firereal-fffc4",
+            storageBucket: "firereal-fffc4.appspot.com",
+            messagingSenderId: "230877096711",
+            appId: "1:230877096711:web:adeb6cc332a37114d9b3a2"),
       );
     } else {
-      await Firebase.initializeApp();
+      print("I NOT   AM HERE FIREBAE");
+      if (Platform.isAndroid) {
+        await Firebase.initializeApp(
+          options: const FirebaseOptions(
+            apiKey: 'AIzaSyB1F-rdst3N8Zcg03iPfHfZRtIT0Ge-NqA',
+            appId: '1:230877096711:android:4ac7c38d8dc5ceadd9b3a2',
+            messagingSenderId: '230877096711',
+            projectId: 'firereal-fffc4',
+            storageBucket: "firereal-fffc4.appspot.com",
+          ),
+        );
+      } else if (Platform.isIOS) {
+        await Firebase.initializeApp();
+      }
     }
 
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -450,10 +499,9 @@ Future<void> main() async {
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      if (message.data?['videocall'] == "true") {
+      if (message.data?['videocall']=="true" ||
+          message.data?['voicecall']=="true" ) {
         handleVideoCallNotification(message);
-
-
       } else {
         showNotification(message, isVideoCall: false);
       }
@@ -464,7 +512,8 @@ Future<void> main() async {
       print(message?.data);
       //  {videocall: true, imageurl: , name: diwalit, body: Video call , title: Video Call,
       //  userid: IPoBtAe97VbyxhqGzpi9G9EHOJw1, channelid: asGFK2IKOeZRd2Ur0mQuFW2Wwvm21704204144055, custom_key: videocall}
-      if (message?.data?['videocall'] == "true") {
+      if (message?.data?['videocall'] == "true" ||
+          message?.data?['voicecall'] == "true") {
         handleVideoCallNotification(message!);
       } else {
         handleRegularNotification(message!);
@@ -491,7 +540,7 @@ Future<void> main() async {
             Get.put(ProfileController());
           }),
           debugShowCheckedModeBanner: false,
-          home:  MaterialApp(
+          home: MaterialApp(
             debugShowCheckedModeBanner: false,
             home: SplashScreen(),
           ),
@@ -502,6 +551,7 @@ Future<void> main() async {
     print(err);
   }
 }
+
 class DynamicView extends StatefulWidget {
   const DynamicView({super.key});
 
@@ -509,20 +559,14 @@ class DynamicView extends StatefulWidget {
   State<DynamicView> createState() => _DynamicViewState();
 }
 
-
-
 class _DynamicViewState extends State<DynamicView> {
   bool isMyFullScreen = false;
   double _positionX = 0.0;
   double _positionY = 0.0;
 
-
-
-
   @override
   void initState() {
     super.initState();
-
   }
 
   @override
@@ -546,21 +590,21 @@ class _DynamicViewState extends State<DynamicView> {
                     // Your green container content
                     isMyFullScreen
                         ? Container(
-                      child: const Center(
-                        child: Text(
-                          "i am full screen",
-                          style: TextStyle(color: Colors.white60),
-                        ),
-                      ),
-                    )
+                            child: const Center(
+                              child: Text(
+                                "i am full screen",
+                                style: TextStyle(color: Colors.white60),
+                              ),
+                            ),
+                          )
                         : Container(
-                      child: const Center(
-                        child: Text(
-                          "i am remote",
-                          style: TextStyle(color: Colors.black),
-                        ),
-                      ),
-                    ),
+                            child: const Center(
+                              child: Text(
+                                "i am remote",
+                                style: TextStyle(color: Colors.black),
+                              ),
+                            ),
+                          ),
 
                     // Draggable container
                     Positioned(
@@ -574,27 +618,30 @@ class _DynamicViewState extends State<DynamicView> {
                           color: Colors.deepPurple.withOpacity(0.5),
                           child: isMyFullScreen
                               ? Container(
-                            child: const Center(
-                              child: Text(
-                                "I am full screen",
-                                style: TextStyle(color: Colors.black),
-                              ),
-                            ),
-                          )
+                                  child: const Center(
+                                    child: Text(
+                                      "I am full screen",
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                  ),
+                                )
                               : Container(
-                            child: const Center(
-                              child: Text(
-                                "I am remote",
-                                style: TextStyle(color: Colors.red),
-                              ),
-                            ),
-                          ),
+                                  child: const Center(
+                                    child: Text(
+                                      "I am remote",
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ),
+                                ),
                         ),
                         childWhenDragging: Container(),
-                        onDraggableCanceled: (Velocity velocity, Offset offset) {
+                        onDraggableCanceled:
+                            (Velocity velocity, Offset offset) {
                           // Update the position when dragging is canceled
-                          double maxX = MediaQuery.of(context).size.width - MediaQuery.of(context).size.width * 0.5;
-                          double maxY = MediaQuery.of(context).size.height - MediaQuery.of(context).size.height * 0.23;
+                          double maxX = MediaQuery.of(context).size.width -
+                              MediaQuery.of(context).size.width * 0.5;
+                          double maxY = MediaQuery.of(context).size.height -
+                              MediaQuery.of(context).size.height * 0.23;
 
                           double newX = offset.dx.clamp(0.0, maxX);
                           double newY = offset.dy.clamp(0.0, maxY);
@@ -611,21 +658,21 @@ class _DynamicViewState extends State<DynamicView> {
                           color: Colors.deepPurple,
                           child: isMyFullScreen
                               ? Container(
-                            child: const Center(
-                              child: Text(
-                                "I am full screen",
-                                style: TextStyle(color: Colors.black),
-                              ),
-                            ),
-                          )
+                                  child: const Center(
+                                    child: Text(
+                                      "I am full screen",
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                  ),
+                                )
                               : Container(
-                            child: const Center(
-                              child: Text(
-                                "I am remote",
-                                style: TextStyle(color: Colors.red),
-                              ),
-                            ),
-                          ),
+                                  child: const Center(
+                                    child: Text(
+                                      "I am remote",
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ),
+                                ),
                         ),
                       ),
                     ),
@@ -635,6 +682,174 @@ class _DynamicViewState extends State<DynamicView> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: StoryListScreen(),
+    );
+  }
+}
+
+class StoryListScreen extends StatelessWidget {
+  final List<Map<String, dynamic>> apiResponse = [
+    {
+      "name": "Abhay",
+      "id": 1,
+      "status_images": [
+        {
+          "status_seen": false,
+          "image": "https://picsum.photos/213",
+        },
+        {
+          "status_seen": false,
+          "image": "https://picsum.photos/212",
+        },
+        {
+          "status_seen": false,
+          "image": "https://picsum.photos/210",
+        }
+      ]
+    },
+    {
+      "name": "Rai",
+      "id": 2,
+      "status_images": [
+        {
+          "status_seen": true,
+          "image": "https://picsum.photos/203",
+        },
+        {
+          "status_seen": true,
+          "image": "https://picsum.photos/202",
+        },
+      ]
+    },
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Story List'),
+      ),
+      body: ListView.builder(
+        itemCount: apiResponse.length,
+        itemBuilder: (context, index) {
+          final user = apiResponse[index];
+          return ListTile(
+            title: Text(user['name']),
+            subtitle: Image.network(user['status_images'][0]['image']),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => StoryViewScreen(
+                    users: apiResponse,
+                    initialUserIndex: index,
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+class StoryViewScreen extends StatefulWidget {
+  final List<Map<String, dynamic>> users;
+  final int initialUserIndex;
+
+  StoryViewScreen({
+    required this.users,
+    required this.initialUserIndex,
+  });
+
+  @override
+  _StoryViewScreenState createState() => _StoryViewScreenState();
+}
+
+class _StoryViewScreenState extends State<StoryViewScreen> {
+  final controller = StoryController();
+  int currentStoryIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('${widget.users[currentStoryIndex]['name']}\'s Story'),
+      ),
+      body: Column(
+        children: [
+          LinearProgressIndicator(
+            value: currentStoryIndex /
+                widget.users[currentStoryIndex]['status_images'].length,
+            valueColor: AlwaysStoppedAnimation<Color>(
+              widget.users[currentStoryIndex]['status_images']
+                      [currentStoryIndex]['status_seen']
+                  ? Colors.grey
+                  : Colors.green,
+            ),
+            backgroundColor: Colors.grey,
+          ),
+          Expanded(
+            child: StoryView(
+              controller: controller,
+              storyItems: widget.users[currentStoryIndex]['status_images']
+                  .map<StoryItem>(
+                    (statusImage) => StoryItem.pageImage(
+                      url: statusImage['image'],
+                      controller: controller,
+                      duration: const Duration(seconds: 30),
+                    ),
+                  )
+                  .toList(),
+              onComplete: () {
+                // Check if all status_seen is true
+                bool allStatusSeen =
+                    widget.users[currentStoryIndex]['status_images'].every(
+                  (statusImage) => statusImage['status_seen'] == true,
+                );
+
+                if (allStatusSeen) {
+                  // Show the next user's status if available
+                  int currentIndex = currentStoryIndex + 1;
+                  if (currentIndex < widget.users.length) {
+                    setState(() {
+                      currentStoryIndex = currentIndex;
+                    });
+                  } else {
+                    // If no more users, you can navigate back or handle as needed
+                    Navigator.pop(context);
+                  }
+                }
+              },
+              onVerticalSwipeComplete: (direction) {
+                if (direction == Direction.down) {
+                  // Navigate back when swiped down
+                  Navigator.pop(context);
+                }
+              },
+              onStoryShow: (storyItem) {
+                // Update progress indicator when a new story is shown
+                int currentIndex = widget.users[currentStoryIndex]
+                        ['status_images']
+                    .indexWhere((element) => element == storyItem.view);
+                // setState(() {
+                //
+                // });
+                currentStoryIndex = currentIndex;
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

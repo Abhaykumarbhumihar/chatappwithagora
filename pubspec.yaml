@@ -76,6 +76,7 @@ dev_dependencies:
   agora_rtc_engine:
   slidable_button: ^3.0.0+1
   draggable_float_widget: ^0.1.0
+  story_view:
 
 
 

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../agora_code/videocall_pojo.dart';
 import '../firebase_services/auth_services.dart';
+import '../model/UserModel.dart';
 import '../model/recent_chat.dart';
 
 class RecentChatController extends GetxController {
@@ -11,6 +12,32 @@ class RecentChatController extends GetxController {
   List<ChatModel> recentChatList = [];
 
   String get currentUserId => auth.getCurrentUser()!.uid;
+
+  final _showRecent = false.obs;
+
+  bool get showIndividual => _showRecent.value;
+
+  set showIndividual(bool flag) {
+    _showRecent.value = flag;
+    update();
+  }
+
+  final _isShowAlluser = false.obs;
+  bool get isShowAllUSer => _isShowAlluser.value;
+
+  set isShowAllUSer(bool flag) {
+    _isShowAlluser.value = flag;
+    update();
+  }
+
+  final _userModel = UserModel().obs;
+
+  UserModel get userModel => _userModel.value;
+
+  set userModel(UserModel userModel) {
+    _userModel.value = userModel;
+    update();
+  }
 
   @override
   void onInit() {

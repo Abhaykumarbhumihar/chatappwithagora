@@ -86,7 +86,8 @@ class _CallReceiveScreenState extends State<CallReceiveScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(child: Scaffold(
+    return
+      SafeArea(child: Scaffold(
       body: GetBuilder<IndividualChatController>(builder: (controller) {
         return
           Stack(
@@ -154,18 +155,27 @@ class _CallReceiveScreenState extends State<CallReceiveScreen> {
                               print("GETTNG CHANNEL ID IS ${widget.channelId}");
                               print(
                                   "GETTING TOKEN WITH CHANNER ${widget.channelId} and token is ${userToken}");
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => VideoCallScreen(
-                                        imageUrl: widget.imageUrl,
-                                        fname: widget.fname,
-                                        userId: widget.userId,
-                                        receivecall: true,
-                                        channelId: widget.channelId,
-                                        agoratoken: userToken,
-                                        lname: '')),
-                              );
+                              // Navigator.pushReplacement(
+                              //   context,
+                              //   MaterialPageRoute(
+                              //       builder: (context) => VideoCallScreen(
+                              //           imageUrl: widget.imageUrl,
+                              //           fname: widget.fname,
+                              //           userId: widget.userId,
+                              //           receivecall: true,
+                              //           channelId: widget.channelId,
+                              //           agoratoken: userToken,
+                              //           lname: '')),
+                              // );
+
+                              Get.to(VideoCallScreen(
+                                  imageUrl: widget.imageUrl,
+                                  fname: widget.fname,
+                                  userId: widget.userId,
+                                  receivecall: true,
+                                  channelId: widget.channelId,
+                                  agoratoken: userToken,
+                                  lname: ''));
                               print('Call Accepted');
                             },
                           ),

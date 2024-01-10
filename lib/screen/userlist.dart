@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_caht_module/controllers/recentchat_controller.dart';
 import 'package:flutter_caht_module/screen/individular_chat.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -28,15 +29,35 @@ class UserList extends StatelessWidget {
           itemBuilder: (context, index) {
             return InkWell(
               onTap: (){
-                var individualChatController =
+                var individualChatController = Get.isRegistered<IndividualChatController>()
+                    ? Get.find<IndividualChatController>()
+                    : Get.put(IndividualChatController());
+                if(ScreenUtils.isLargeScreen(context)){
+                  var recentcChatController = Get.isRegistered<RecentChatController>()
+                      ? Get.find<RecentChatController>()
+                      : Get.put(RecentChatController());
 
-                Get.put(IndividualChatController());
-                individualChatController.userToken="";
-                individualChatController.getFirebaseToken(controller.userList[index].id);
-                individualChatController.userModel = controller.userList[index];
-                individualChatController.messageList.clear();
-                individualChatController.getMessages(controller.userList[index]);
-                Get.to(IndividualChat(),arguments:controller.userList[index] );
+                  recentcChatController.showIndividual=false;
+                  individualChatController.userToken="";
+                  individualChatController.getFirebaseToken(controller.userList[index].id);
+                  individualChatController.userModel = controller.userList[index];
+                  individualChatController.messageList.clear();
+                  individualChatController.getMessages(controller.userList[index]);
+                  //Get.to(IndividualChat(),arguments:controller.userList[index] );
+                  recentcChatController.isShowAllUSer=false;
+                  recentcChatController.showIndividual=true;
+
+                }else{
+                  individualChatController.userToken="";
+                  individualChatController.getFirebaseToken(controller.userList[index].id);
+                  individualChatController.userModel = controller.userList[index];
+                  individualChatController.messageList.clear();
+                  individualChatController.getMessages(controller.userList[index]);
+                  Get.to(IndividualChat(),arguments:controller.userList[index] );
+                }
+
+
+
               },
               child: Padding(
                 padding: const EdgeInsets.all(8.0),

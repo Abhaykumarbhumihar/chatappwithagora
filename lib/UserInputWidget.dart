@@ -48,7 +48,9 @@ class _UserInputWidgetState extends State<UserInputWidget> {
                 hintText: 'Email or Phone',
               ),
             ),
+
             SizedBox(height: 10),
+
             if (isPhone)
               CountryCodePicker(
                 initialSelection: selectedCountryCode,
@@ -58,6 +60,7 @@ class _UserInputWidgetState extends State<UserInputWidget> {
                   });
                 },
               ),
+
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: validateInput,

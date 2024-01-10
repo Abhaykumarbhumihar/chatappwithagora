@@ -31,7 +31,26 @@
 
     <title>flutter_caht_module</title>
     <link rel="manifest" href="manifest.json">
+    <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
 
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDi6oXaQ4k5jNnRxpY5L4Ork5kpAmuoJxE",
+    authDomain: "firereal-fffc4.firebaseapp.com",
+    databaseURL: "https://firereal-fffc4.firebaseio.com",
+    projectId: "firereal-fffc4",
+    storageBucket: "firereal-fffc4.appspot.com",
+    messagingSenderId: "230877096711",
+    appId: "1:230877096711:web:adeb6cc332a37114d9b3a2"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+</script>
     <script>
     // The value below is injected by flutter build, do not touch.
     var serviceWorkerVersion = null;
@@ -46,19 +65,18 @@
 <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-storage.js"></script>
 <script>
-  const firebaseConfig = {
-  apiKey: "AIzaSyDiNRTxTDYyAU0_3AIMI5hOTQIEJzoMIlY",
-  authDomain: "messasingfirebase.firebaseapp.com",
-  projectId: "messasingfirebase",
-  storageBucket: "messasingfirebase.appspot.com",
-  messagingSenderId: "210387962613",
-  appId: "1:210387962613:web:661e11305e66b14706d3bc",
-  measurementId: "G-3QENP6L2K4"
+const firebaseConfig = {
+  apiKey: "AIzaSyDi6oXaQ4k5jNnRxpY5L4Ork5kpAmuoJxE",
+  authDomain: "firereal-fffc4.firebaseapp.com",
+  databaseURL: "https://firereal-fffc4.firebaseio.com",
+  projectId: "firereal-fffc4",
+  storageBucket: "firereal-fffc4.appspot.com",
+  messagingSenderId: "230877096711",
+  appId: "1:230877096711:web:adeb6cc332a37114d9b3a2"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 
 </script>
 

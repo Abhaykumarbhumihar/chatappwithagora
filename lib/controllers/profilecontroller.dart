@@ -16,6 +16,7 @@ class ProfileController extends GetxController {
   final TextEditingController fnameController = TextEditingController();
   final TextEditingController lnameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
+
   var usermodel = UserModel().obs;
   final _isEditMode = false.obs;
   final BaseAuth _auth = Auth();
@@ -29,6 +30,15 @@ class ProfileController extends GetxController {
     _isEditMode.value = flag;
     update();
   }
+
+  final _isHovered = false.obs;
+  bool get isHovered => _isHovered.value;
+
+  set isHovered(bool flag) {
+    _isHovered.value = flag;
+    update();
+  }
+
 
   @override
   void onInit() {

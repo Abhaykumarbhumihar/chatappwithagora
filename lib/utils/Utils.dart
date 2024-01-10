@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_caht_module/utils/CommonDialog.dart';
+import 'package:flutter_caht_module/utils/ScreenUtils.dart';
 import 'package:flutter_exif_rotation/flutter_exif_rotation.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -21,29 +22,67 @@ class Utils {
     return val;
   }
 
-  Widget createButton(context, text, width, height, onpressed) {
-    return ElevatedButton(
-      onPressed: onpressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor:
-            Color(Utils.hexStringToHexInt(ColorsCode.createButtonColor)),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(
-              width * 0.09), // Adjust the radius as needed
-        ),
-        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-        fixedSize: Size(width, height), // Set the width and height
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: (width < 800 ? width * 0.05 : width * 0.03 - 5),
-          fontWeight: FontWeight.w500,
-          fontFamily: "Poppins Medium",
-        ),
-      ),
+  Widget createButton(context, text, width, height, onpressed,controller) {
+
+
+    return Builder(
+      builder: (BuildContext context) {
+        return AnimatedBuilder(
+          animation: Tween<double>(begin: 0.0, end: 1.0).animate(
+            CurvedAnimation(
+              parent: ModalRoute.of(context)!.animation!,
+              curve: Curves.elasticOut,
+            ),
+          ),
+          builder: (BuildContext context, Widget? child) {
+            return Transform.scale(
+              scale: controller.isHovered ? 1.3 : 1.0,
+              child: ElevatedButton(
+                onHover: (hovered) {
+                  controller.isHovered=hovered;
+                },
+                onPressed: onpressed,
+                style: ElevatedButton.styleFrom(
+                  elevation: controller.isHovered ? 2.0 : 0.0,
+
+                  backgroundColor: backgroundColoris(controller.isHovered,context),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(width * 0.09),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                  fixedSize: Size(width, height),
+                ),
+                child: Text(
+                  text,
+                  style: TextStyle(
+                    fontSize: (width < 800 ? width * 0.05 : width * 0.03 - 5),
+                    fontWeight: FontWeight.w500,
+                    fontFamily: "Poppins Medium",
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
+
+  Color backgroundColoris(ishovered,context){
+    print("$ishovered in backgroundColoris  $ishovered  in backgroundColoris");
+    if(ScreenUtils.isLargeScreen(context)){
+      if(ishovered){
+        return Colors.white;
+      }else{
+        return Color(Utils.hexStringToHexInt(ColorsCode.createButtonColor));
+      }
+    }else{
+      return Color(Utils.hexStringToHexInt(ColorsCode.createButtonColor));
+    }
+  }
+
+
+
 
   Widget titleText1(text, context) {
     return Text(

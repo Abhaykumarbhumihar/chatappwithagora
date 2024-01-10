@@ -42,27 +42,34 @@ class _LoginState extends State<CreateAccount> {
             child: SingleChildScrollView(
               child: Form(
                 key: loginFormGlobalKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    _imageLogo(height),
-                    Gap(height * 0.06),
-                    _createAccount(width, height),
-                    Gap(height * 0.02),
-                    _fNameTextField(),
-                    Gap(height * 0.02),
-                    _lNameTextField(),
-                    Gap(height * 0.02),
-                    _emailTextField(),
-                    Gap(height * 0.03),
-                    _passwordTextField(),
-                    _agreeTermsRow(context, height, width),
-                    Gap(height * 0.1 + 14),
-                    _createButton(context, width, height,contorller),
-                    const Gap(6),
-                    _loginText(width)
-                  ],
+                child: Padding(
+                  padding: ScreenUtils.isLargeScreen(context)?
+                  EdgeInsets.only(left: MediaQuery.of(context).size.width*0.2,
+                      right:MediaQuery.of(context).size.width*0.2)
+
+                      : EdgeInsets.all(1.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      _imageLogo(height),
+                      Gap(height * 0.06),
+                      _createAccount(width, height),
+                      Gap(height * 0.02),
+                      _fNameTextField(),
+                      Gap(height * 0.02),
+                      _lNameTextField(),
+                      Gap(height * 0.02),
+                      _emailTextField(),
+                      Gap(height * 0.03),
+                      _passwordTextField(),
+                      _agreeTermsRow(context, height, width),
+                      Gap(height * 0.1 + 14),
+                      _createButton(context, width, height,contorller),
+                      const Gap(6),
+                      _loginText(width)
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -227,7 +234,7 @@ class _LoginState extends State<CreateAccount> {
         );
 
       }
-    }).paddingOnly(
+    },contorller).paddingOnly(
         left:
             ScreenUtils.isSmallScreen(context) ? width * 0.1 + 22 : width * 0.2,
         right: ScreenUtils.isSmallScreen(context)
