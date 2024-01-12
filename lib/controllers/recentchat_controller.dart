@@ -30,6 +30,29 @@ class RecentChatController extends GetxController {
     update();
   }
 
+
+
+
+  final _isRecentChat = false.obs;
+
+  bool get isRecentChat => _isRecentChat.value;
+
+  set isRecentChat(bool flag) {
+    _isRecentChat.value = flag;
+    update();
+  }
+
+  final RxInt _hoveredIndex = (-1).obs;
+
+  int get hoveredIndex => _hoveredIndex.value;
+
+  set hoveredIndex(int flag) {
+    _hoveredIndex.value = flag;
+    update();
+  }
+
+
+
   final _userModel = UserModel().obs;
 
   UserModel get userModel => _userModel.value;

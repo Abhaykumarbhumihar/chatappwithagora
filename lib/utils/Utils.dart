@@ -1,6 +1,8 @@
 import 'dart:io';
 
+
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_caht_module/utils/CommonDialog.dart';
 import 'package:flutter_caht_module/utils/ScreenUtils.dart';
@@ -22,9 +24,7 @@ class Utils {
     return val;
   }
 
-  Widget createButton(context, text, width, height, onpressed,controller) {
-
-
+  Widget createButton(context, text, width, height, onpressed, controller) {
     return Builder(
       builder: (BuildContext context) {
         return AnimatedBuilder(
@@ -39,23 +39,24 @@ class Utils {
               scale: controller.isHovered ? 1.3 : 1.0,
               child: ElevatedButton(
                 onHover: (hovered) {
-                  controller.isHovered=hovered;
+                  controller.isHovered = hovered;
                 },
                 onPressed: onpressed,
                 style: ElevatedButton.styleFrom(
                   elevation: controller.isHovered ? 2.0 : 0.0,
-
-                  backgroundColor: backgroundColoris(controller.isHovered,context),
+                  backgroundColor:
+                      backgroundColoris(controller.isHovered, context),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(width * 0.09),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: width * 0.02, vertical: height * 0.03),
                   fixedSize: Size(width, height),
                 ),
                 child: Text(
                   text,
                   style: TextStyle(
-                    fontSize: (width < 800 ? width * 0.05 : width * 0.03 - 5),
+                    fontSize: (width < 800 ? width * 0.03 : width * 0.03 - 5),
                     fontWeight: FontWeight.w500,
                     fontFamily: "Poppins Medium",
                   ),
@@ -68,21 +69,18 @@ class Utils {
     );
   }
 
-  Color backgroundColoris(ishovered,context){
+  Color backgroundColoris(ishovered, context) {
     print("$ishovered in backgroundColoris  $ishovered  in backgroundColoris");
-    if(ScreenUtils.isLargeScreen(context)){
-      if(ishovered){
+    if (ScreenUtils.isLargeScreen(context)) {
+      if (ishovered) {
         return Colors.white;
-      }else{
+      } else {
         return Color(Utils.hexStringToHexInt(ColorsCode.createButtonColor));
       }
-    }else{
+    } else {
       return Color(Utils.hexStringToHexInt(ColorsCode.createButtonColor));
     }
   }
-
-
-
 
   Widget titleText1(text, context) {
     return Text(
@@ -123,10 +121,37 @@ class Utils {
         source: ImageSource.gallery, maxHeight: 400, maxWidth: 400);
     print("IN UTILS ${picture}");
     if (picture != null) {
-      File rotatedImage =
-          await FlutterExifRotation.rotateAndSaveImage(path: picture.path);
-      print("IN rotatedImage rotatedImage  ${rotatedImage}");
-      return rotatedImage;
+      if (!kIsWeb) {
+        File rotatedImage =
+            await FlutterExifRotation.rotateAndSaveImage(path: picture.path);
+        print("IN rotatedImage rotatedImage  ${rotatedImage}");
+        return rotatedImage;
+      } else {
+        print(picture.path);
+        return File(picture.path);
+        // File webFile = File(picture.path);
+        // print("CODE IS RUNNING HEREEEE");
+        // print("DSF SDF DSF ${picture.path}");
+        //return webFile;
+      }
+    }
+  }
+
+
+ static Future<PlatformFile?> pickImage() async {
+    try {
+      // Pick an image file using file_picker package
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+      );
+
+      // If user cancels the picker, do nothing
+      if (result == null) return null;
+      // If user picks an image, update the state with the new image file
+      return result.files.first;
+    } catch (e) {
+      // If there is an error, show a snackbar with the error message
+      return null;
     }
   }
 
@@ -144,9 +169,8 @@ class Utils {
   }
 
   static Future<List<File>?> pickAudio() async {
-    FilePickerResult? result =
-    await FilePicker.platform.pickFiles(
-       // type: FileType.audio,
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+        // type: FileType.audio,
         type: FileType.custom,
         allowedExtensions: ['mp3', 'wav', 'aac', 'ogg', 'flac', 'm4a'],
         allowMultiple: true);
@@ -160,7 +184,7 @@ class Utils {
     return null;
   }
 
- static Future<Contact?> pickContact() async {
+  static Future<Contact?> pickContact() async {
     // Check if we have permission to access contacts.
     final PermissionStatus status = await Permission.contacts.request();
 
@@ -176,7 +200,9 @@ class Utils {
     } else {
       await Permission.contacts.request();
       // Handle the case where permission is denied.
-      CommonDialog.showErrorDialog1(title: "Please give contact permission in setting",description: "For use this , you need to give contact permission");
+      CommonDialog.showErrorDialog1(
+          title: "Please give contact permission in setting",
+          description: "For use this , you need to give contact permission");
     }
     return null;
   }

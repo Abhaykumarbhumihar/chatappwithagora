@@ -1,8 +1,11 @@
 import 'dart:io';
+import 'dart:typed_data';
+import 'package:file_picker/file_picker.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_caht_module/utils/Utils.dart';
 import 'package:get/get.dart';
@@ -21,6 +24,8 @@ class ProfileController extends GetxController {
   final _isEditMode = false.obs;
   final BaseAuth _auth = Auth();
   Rx<File?> image = Rx<File?>(null);
+  Rx<PlatformFile?> imagePlatformFile = Rx<PlatformFile?>(null);
+
   var isSelectedforImage = "".obs;
   List<UserModel> userList = [];
 
@@ -77,26 +82,40 @@ class ProfileController extends GetxController {
     Get.offAll(SplashScreen());
   }
 
-  updateProfileWithImage() {
-    if (image.value != null) {
-      uploadImage(image.value!);
-    } else {
-      updateProfilewithoutImage();
+  updateProfileWithImage() async{
+
+    if(kIsWeb){
+      if (imagePlatformFile.value != null) {
+        File file = await File(imagePlatformFile.value!.path!);
+        uploadImage(file);
+      } else {
+        updateProfilewithoutImage();
+      }
+    }else{
+      if (image.value != null) {
+        uploadImage(image.value!);
+      } else {
+        updateProfilewithoutImage();
+      }
     }
+
+
   }
 
   updateProfilewithoutImage() async {
+
     Map<String, dynamic> userData = {
       'fname': fnameController.value.text,
       'lanme': lnameController.value.text,
       'email': emailController.value.text,
       'password': usermodel.value.password,
-      'profileImage':'https://www.brasscraft.com/wp-content/uploads/2017/01/no-image-available.png'
+      'profile_image':'https://www.brasscraft.com/wp-content/uploads/2017/01/no-image-available.png'
     };
     await FBCollections.users.doc(_auth.getCurrentUser()!.uid).update(userData);
   }
 
   Future<String> uploadImage(File imageFile) async {
+    print('RUNNING IN uploadImage  RUNNING IN uploadImage  RUNNING IN uploadImage  RUNNING IN uploadImage ');
     final storage = FirebaseStorage.instance;
 
     final storageRef = storage.ref().child(
@@ -138,7 +157,12 @@ class ProfileController extends GetxController {
             title: const Text('Gallery'),
             onTap: () async {
               Navigator.of(context, rootNavigator: true).pop();
-              image.value = await Utils.openGallery(Get.context!);
+               //image.value = await Utils.openGallery(Get.context!);
+              // print("image.value image.value image.value$image.value");
+             imagePlatformFile.value= await Utils.pickImage();
+
+             print("SDF SDF ====SDF SDF ====SDF SDF ======SDF SDF====");
+
               update();
             },
           ),

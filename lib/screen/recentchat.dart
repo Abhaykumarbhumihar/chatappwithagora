@@ -19,7 +19,7 @@ class RecentChat extends StatelessWidget {
       ? Get.find<RecentChatController>()
       : Get.put(RecentChatController());
 
-  RecentChat({Key? key}) : super(key: key);
+
 
   @override
   Widget build(BuildContext context) {
@@ -41,207 +41,236 @@ class RecentChat extends StatelessWidget {
           Color(Utils.hexStringToHexInt(ColorsCode.backgroundColor)),
       body: GetBuilder<RecentChatController>(builder: (controller) {
         if (ScreenUtils.isLargeScreen(context)) {
+
           return Container(
             child: Row(
               children: <Widget>[
+
                 Expanded(
                     flex: 1,
-                    child: Card(
-                      color: Colors.transparent,
-                      surfaceTintColor: Colors.white,
-                      //  shape: Border(right: BorderSide(color: Colors.red, width: 5)),
-                      shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(10),
-                              topLeft: Radius.circular(10))),
-                      child: controller.isShowAllUSer
-                          ? const UserList()
-                          : ListView.builder(
-                              itemCount: controller.recentChatList.length,
-                              itemBuilder: (context, index) {
-                                return InkWell(
-                                  onTap: () {
-                                    controller.showIndividual = true;
-                                    UserModel? userModel;
-                                    if (controller.recentChatList[index]
-                                            .userOne!.id ==
-                                        controller
-                                            .currentUserId) //means login user hai is came me user two ka data lena hai
-                                    {
-                                      //set user two data
-                                      userModel = UserModel(
-                                          fname: controller
-                                              .recentChatList[index]
-                                              .userTwo!
-                                              .fname!,
-                                          password: "sdfsd",
-                                          email: controller
-                                              .recentChatList[index]
-                                              .userTwo!
-                                              .email!,
-                                          id: controller.recentChatList[index]
-                                              .userTwo!.id!,
-                                          lname: controller
-                                              .recentChatList[index]
-                                              .userTwo!
-                                              .lanme!,
-                                          profileImage: controller
-                                              .recentChatList[index]
-                                              .userTwo!
-                                              .profileImage!);
-                                    } else {
-                                      //means login user nahi hai is came me user one ka data lena hai
-                                      //send user one data
-                                      userModel = UserModel(
-                                          fname: controller
-                                              .recentChatList[index]
-                                              .userOne!
-                                              .fname!,
-                                          password: "sdfsd",
-                                          email: controller
-                                              .recentChatList[index]
-                                              .userOne!
-                                              .email!,
-                                          id: controller.recentChatList[index]
-                                              .userOne!.id!,
-                                          lname: controller
-                                              .recentChatList[index]
-                                              .userOne!
-                                              .lanme!,
-                                          profileImage: controller
-                                              .recentChatList[index]
-                                              .userOne!
-                                              .profileImage!);
-                                    }
+                    child:
+                    controller.isShowAllUSer
+                        ? const UserList()
+                        :
+                    ListView.builder(
+                            itemCount: controller.recentChatList.length,
+                            itemBuilder: (context, index) {
+                              return InkWell(
+                                onTap: () {
+                                  controller.showIndividual = true;
+                                  UserModel? userModel;
+                                  if (controller.recentChatList[index]
+                                          .userOne!.id ==
+                                      controller
+                                          .currentUserId) //means login user hai is came me user two ka data lena hai
+                                  {
+                                    //set user two data
+                                    userModel = UserModel(
+                                        fname: controller
+                                            .recentChatList[index]
+                                            .userTwo!
+                                            .fname!,
+                                        password: "sdfsd",
+                                        email: controller
+                                            .recentChatList[index]
+                                            .userTwo!
+                                            .email!,
+                                        id: controller.recentChatList[index]
+                                            .userTwo!.id!,
+                                        lname: controller
+                                            .recentChatList[index]
+                                            .userTwo!
+                                            .lanme!,
+                                        profileImage: controller
+                                            .recentChatList[index]
+                                            .userTwo!
+                                            .profileImage!);
+                                  } else {
+                                    //means login user nahi hai is came me user one ka data lena hai
+                                    //send user one data
+                                    userModel = UserModel(
+                                        fname: controller
+                                            .recentChatList[index]
+                                            .userOne!
+                                            .fname!,
+                                        password: "sdfsd",
+                                        email: controller
+                                            .recentChatList[index]
+                                            .userOne!
+                                            .email!,
+                                        id: controller.recentChatList[index]
+                                            .userOne!.id!,
+                                        lname: controller
+                                            .recentChatList[index]
+                                            .userOne!
+                                            .lanme!,
+                                        profileImage: controller
+                                            .recentChatList[index]
+                                            .userOne!
+                                            .profileImage!);
+                                  }
 
-                                    controller.userModel = userModel;
+                                  controller.userModel = userModel;
 
-                                    // var individualChatController =
-                                    //     Get.put(IndividualChatController());
-                                    // individualChatController.userToken = "";
-                                    // individualChatController.userModel = userModel;
-                                    // //jis user se chat kr rhe hai uska token get krne k liye
-                                    // individualChatController
-                                    //     .getFirebaseToken(userModel.id);
-                                    // //jis user se chat kr rhe hai uska previcious message get krne k liye
-                                    // individualChatController.getMessages(userModel);
-                                    //
-                                    // individualChatController.messageList.clear();
-                                    // Get.to(IndividualChat(), arguments: userModel);
-                                    var individualChatController =
-                                        Get.put(IndividualChatController());
-                                    individualChatController.userToken = "";
-                                    individualChatController.userModel =
-                                        userModel;
-                                    //jis user se chat kr rhe hai uska token get krne k liye
-                                    individualChatController
-                                        .getFirebaseToken(userModel.id);
-                                    //jis user se chat kr rhe hai uska previcious message get krne k liye
-                                    individualChatController
-                                        .getMessages(userModel);
+                                  // var individualChatController =
+                                  //     Get.put(IndividualChatController());
+                                  // individualChatController.userToken = "";
+                                  // individualChatController.userModel = userModel;
+                                  // //jis user se chat kr rhe hai uska token get krne k liye
+                                  // individualChatController
+                                  //     .getFirebaseToken(userModel.id);
+                                  // //jis user se chat kr rhe hai uska previcious message get krne k liye
+                                  // individualChatController.getMessages(userModel);
+                                  //
+                                  // individualChatController.messageList.clear();
+                                  // Get.to(IndividualChat(), arguments: userModel);
+                                  var individualChatController =
+                                      Get.put(IndividualChatController());
+                                  individualChatController.userToken = "";
+                                  individualChatController.userModel =
+                                      userModel;
+                                  //jis user se chat kr rhe hai uska token get krne k liye
+                                  individualChatController
+                                      .getFirebaseToken(userModel.id);
+                                  //jis user se chat kr rhe hai uska previcious message get krne k liye
+                                  individualChatController
+                                      .getMessages(userModel);
 
-                                    individualChatController.messageList
-                                        .clear();
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
+                                  individualChatController.messageList
+                                      .clear();
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child:
+                                  MouseRegion(
+                                    onExit: (_){
+                                      controller.hoveredIndex=-1;
+                                      controller.isRecentChat=false;
+                                    },
+                                    onEnter: (_){
+                                      controller.hoveredIndex=index;
+                                      controller.isRecentChat=true;
+                                    },
+                                    child:
+                              Transform.scale(
+                                scale: (controller.hoveredIndex == index && controller.isRecentChat) ? 1.0 : 0.9,
+
+                              //  scale: controller.isRecentChat ? 1.0 : 0.8,
+                                  child:  Card(
+                                    color: Colors.transparent,
+                                    surfaceTintColor: Colors.white,
+                                    elevation:   (controller.hoveredIndex == index && controller.isRecentChat) ?2.0:0.6,
+                                    shape: const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.only(
+                                          topRight: Radius.circular(10),
+                                          bottomRight:Radius.circular(10),
+                                            bottomLeft: Radius.circular(10),
+                                            topLeft: Radius.circular(10))),
                                     child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        Row(
-                                          children: [
-                                            //todo--profile view
-                                            CircleAvatar(
-                                              radius: 30,
-                                              backgroundImage: NetworkImage(
-                                                controller.recentChatList[index]
-                                                            .userOne!.id ==
-                                                        controller.currentUserId
-                                                    ? controller
-                                                        .recentChatList[index]
-                                                        .userTwo!
-                                                        .profileImage!
-                                                    : controller
-                                                        .recentChatList[index]
-                                                        .userOne!
-                                                        .profileImage!,
-                                              ), // Replace with the actual image URL
-                                            ),
-                                            const SizedBox(width: 24),
-                                            //todo---name and lastmessage view
-                                            Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceAround,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: <Widget>[
-                                                Text(
-                                                  controller
-                                                              .recentChatList[
-                                                                  index]
-                                                              .userOne!
-                                                              .id ==
-                                                          controller
-                                                              .currentUserId
-                                                      ? controller
-                                                          .recentChatList[index]
-                                                          .userTwo!
-                                                          .fname!
-                                                      : controller
-                                                          .recentChatList[index]
-                                                          .userOne!
-                                                          .fname!,
-                                                  style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 16.0),
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Row(
+                                            children: [
+                                              //todo--profile view
+                                              Padding(
+                                                padding: const EdgeInsets.all(8.0),
+                                                child: CircleAvatar(
+                                                  radius: 30,
+                                                  backgroundImage: NetworkImage(
+                                                    controller.recentChatList[index]
+                                                                .userOne!.id ==
+                                                            controller.currentUserId
+                                                        ? controller
+                                                            .recentChatList[index]
+                                                            .userTwo!
+                                                            .profileImage!
+                                                        : controller
+                                                            .recentChatList[index]
+                                                            .userOne!
+                                                            .profileImage!,
+                                                  ), // Replace with the actual image URL
                                                 ),
-                                                Container(
-                                                  constraints: const BoxConstraints(
-                                                      maxWidth: 230),
-                                                  child: Text(
+                                              ),
+                                              const SizedBox(width: 24),
+                                              //todo---name and lastmessage view
+                                              Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.spaceAround,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: <Widget>[
+                                                  Text(
                                                     controller
-                                                        .recentChatList[index]
-                                                        .lastMessage!,
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
+                                                                .recentChatList[
+                                                                    index]
+                                                                .userOne!
+                                                                .id ==
+                                                            controller
+                                                                .currentUserId
+                                                        ? controller
+                                                            .recentChatList[index]
+                                                            .userTwo!
+                                                            .fname!
+                                                        : controller
+                                                            .recentChatList[index]
+                                                            .userOne!
+                                                            .fname!,
                                                     style: const TextStyle(
                                                         color: Colors.white,
                                                         fontWeight:
-                                                            FontWeight.normal,
-                                                        fontSize: 14.0),
+                                                            FontWeight.bold,
+                                                        fontSize: 16.0),
                                                   ),
-                                                )
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                        //todo---time view
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(right: 8.0),
-                                          child: Text(
-                                              formatMillisecondsSinceEpoch(
-                                                  millisecondsSinceEpochString:
+                                                  Container(
+                                                    constraints: const BoxConstraints(
+                                                        maxWidth: 230),
+                                                    child: Text(
                                                       controller
                                                           .recentChatList[index]
-                                                          .sendTime!),
-                                              style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.normal,
-                                                  fontSize: 12.0)),
-                                        )
-                                      ],
-                                    ),
+                                                          .lastMessage!,
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: const TextStyle(
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.normal,
+                                                          fontSize: 14.0),
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                          //todo---time view
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.only(right: 8.0),
+                                            child: Text(
+                                                formatMillisecondsSinceEpoch(
+                                                    millisecondsSinceEpochString:
+                                                        controller
+                                                            .recentChatList[index]
+                                                            .sendTime!),
+                                                style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.normal,
+                                                    fontSize: 12.0)),
+                                          )
+                                        ],
+                                      ),
                                   ),
-                                );
-                              },
-                            ),
-                    )),
+                              )
+
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                ),
                 Expanded(flex: 2, child: individualChat(controller))
+
               ],
             ),
           );
@@ -402,18 +431,18 @@ class RecentChat extends StatelessWidget {
 
   _appBar(context) {
     return PreferredSize(
-      preferredSize: Size.fromHeight(Get.height * 0.09), //
+      preferredSize: Size.fromHeight(MediaQuery.of(context).size.width*0.10), //
       child: Padding(
-        padding: EdgeInsets.only(top: Get.height * 0.03),
+        padding: EdgeInsets.only(top: MediaQuery.of(context).size.width*0.01),
         child: AppBar(
           backgroundColor:
-              Color(Utils.hexStringToHexInt(ColorsCode.backgroundColor)),
+           Color(Utils.hexStringToHexInt(ColorsCode.backgroundColor)),
           leading: Navigator.canPop(context)
               ? IconButton(
                   icon: Image.asset(
                     "assets/svg/left-arrow.png",
-                    height: Get.height * 0.1,
-                    width: Get.width * 0.09,
+                    height: MediaQuery.of(context).size.height * 0.03,
+                    width: MediaQuery.of(context).size.width * 0.09,
                     color: Colors.white,
                   ),
                   tooltip: 'Back',
@@ -426,11 +455,17 @@ class RecentChat extends StatelessWidget {
                 Get.to(ProfilePage());
               },
               icon: const Icon(Icons.account_circle_outlined),
-              iconSize: ScreenUtils.isSmallScreen(context)
-                  ? Get.width * 0.09
-                  : Get.width * 0.09,
+              iconSize:
+              //MediaQuery.of(context).size.width*0.04
+
+
+              ScreenUtils.isSmallScreen(context)
+                  ? MediaQuery.of(context).size.width*0.04
+                  : MediaQuery.of(context).size.width*0.04,
             ).paddingOnly(right: 12),
-            IconButton(
+
+            if(ScreenUtils.isLargeScreen(context))
+              IconButton(
               onPressed: () async {
                 Get.find<ProfileController>().getUserss();
                 controller.isShowAllUSer = true;
@@ -438,8 +473,8 @@ class RecentChat extends StatelessWidget {
               },
               icon: const Icon(Icons.supervised_user_circle_sharp),
               iconSize: ScreenUtils.isSmallScreen(context)
-                  ? Get.width * 0.09
-                  : Get.width * 0.09,
+                  ? MediaQuery.of(context).size.width*0.04
+                  : MediaQuery.of(context).size.width*0.04,
             ).paddingOnly(right: 12),
           ],
           titleSpacing: 0,

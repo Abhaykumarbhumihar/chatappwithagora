@@ -10,6 +10,7 @@ import 'package:flutter_caht_module/utils/CommonDialog.dart';
 import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+
 class LoginController extends GetxController {
   final BaseAuth _auth = Auth();
 
@@ -25,8 +26,8 @@ class LoginController extends GetxController {
     update();
   }
 
-
   final _isHovered = false.obs;
+
   bool get isHovered => _isHovered.value;
 
   set isHovered(bool flag) {
@@ -34,7 +35,36 @@ class LoginController extends GetxController {
     update();
   }
 
+  final _isPasswordHovered = false.obs;
 
+  bool get isPasswordHovered => _isPasswordHovered.value;
+
+  set isPasswordHovered(bool flag) {
+    _isPasswordHovered.value = flag;
+    update();
+  }
+
+
+  final _isLoginCreat = false.obs;
+
+  bool get isLoginCreat => _isLoginCreat.value;
+
+  set isLoginCreat(bool flag) {
+    _isLoginCreat.value = flag;
+    update();
+  }
+
+
+
+
+  final _isCreateAccountHovered = false.obs;
+
+  bool get isCreateAccountHovered => _isCreateAccountHovered.value;
+
+  set isCreateAccountHovered(bool flag) {
+    _isCreateAccountHovered.value = flag;
+    update();
+  }
 
   creatNewUser({BuildContext? context, fNmae, lName, email, pass}) async {
     try {
@@ -45,10 +75,10 @@ class LoginController extends GetxController {
           'lanme': "$lName",
           'email': "$email",
           'password': "$pass",
-          'id':user.uid,
+          'id': user.uid,
         };
         await FBCollections.users.doc(user.uid).set(userData);
-           saveToken(user.uid);
+        saveToken(user.uid);
         CommonDialog.hideLoading();
         CommonDialog.showsnackbar(
             "Email verification link has been sent to you email");
@@ -65,7 +95,7 @@ class LoginController extends GetxController {
     if (user != null) {
       print(user);
       saveToken(user.uid);
-     var controller= Get.put(ProfileController());
+      var controller = Get.put(ProfileController());
       controller.getUserProfile();
       Get.to(() => ProfilePage());
       //CommonDialog.hideLoading();
@@ -82,21 +112,20 @@ class LoginController extends GetxController {
     }
   }
 
-
   void getToken() async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
     String? token = await messaging.getToken();
     print("FCM Token: $token");
   }
 
-  saveToken(userId)async{
+  saveToken(userId) async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
     String? token = await messaging.getToken();
     print("FCM Token: $token");
     Map<String, dynamic> userData = {
       'token': '$token',
-      'id':'$userId',
-      'lastseen':'Online'
+      'id': '$userId',
+      'lastseen': 'Online'
     };
     await FBCollections.tokens.doc(userId).set(userData);
   }

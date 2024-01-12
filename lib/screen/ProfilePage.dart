@@ -1,3 +1,6 @@
+import 'dart:typed_data';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_caht_module/controllers/profilecontroller.dart';
@@ -82,7 +85,23 @@ class ProfilePage extends StatelessWidget {
                         onTap: () {
                           controller.openDialog(context);
                         },
-                        child: CircleAvatar(
+                        child:
+                        kIsWeb?
+                        CircleAvatar(
+                          radius: 75,
+                          backgroundImage: controller.imagePlatformFile.value != null
+                              ?
+                          Image.memory(
+                            Uint8List.fromList(controller.imagePlatformFile.value!.bytes!),
+                            fit: BoxFit.cover,
+                          ).image
+
+                              : NetworkImage(
+                              controller.usermodel.value.profileImage ??
+                                  ""), // Replace with your image
+                        )
+                            :
+                        CircleAvatar(
                           radius: 75,
                           backgroundImage: controller.image.value != null
                               ? Image.file(
@@ -94,6 +113,7 @@ class ProfilePage extends StatelessWidget {
                                       ""), // Replace with your image
                         ),
                       ),
+
                       GestureDetector(
                         onTap: () {
                           controller.isEditMode = !controller.isEditMode;

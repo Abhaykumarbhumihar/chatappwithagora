@@ -85,7 +85,7 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
               child: TextFormField(
                 validator: widget.validate,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
-                style: TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.black),
                 cursorColor: Theme.of(context).primaryColor,
                 controller: widget._controller,
                 autofocus: false,
@@ -102,7 +102,7 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
                   counterText: "",
                   disabledBorder:  OutlineInputBorder(
                     borderRadius: BorderRadius.circular(width * 0.03),
-                    borderSide: BorderSide(color: Colors.grey),
+                    borderSide: const BorderSide(color: Colors.grey),
                   ),
                   errorBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(width * 0.03),
@@ -122,6 +122,7 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
                     borderRadius: BorderRadius.circular(width * 0.03),
                     borderSide: const BorderSide(width: 2.0, color: Colors.red),
                   ),
+                  hoverColor: Colors.indigo.shade100,
                   hintStyle: const TextStyle(fontSize: 12),
                   helperStyle: const TextStyle(fontSize: 12),
                 ),

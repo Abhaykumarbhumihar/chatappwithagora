@@ -3,7 +3,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 
-
 import '../controllers/login_controller.dart';
 import '../utils/ScreenUtils.dart';
 import '../utils/Utils.dart';
@@ -12,7 +11,6 @@ import '../widgets/logintextfield.dart';
 import '../widgets/validator.dart';
 
 class CreateAccount extends StatefulWidget {
-
   const CreateAccount({Key? key}) : super(key: key);
 
   @override
@@ -26,6 +24,7 @@ class _LoginState extends State<CreateAccount> {
   final TextEditingController lnameController = TextEditingController();
   bool value = false;
   final GlobalKey<FormState> loginFormGlobalKey = GlobalKey<FormState>();
+  final controller = Get.put(LoginController());
 
   @override
   Widget build(BuildContext context) {
@@ -34,55 +33,53 @@ class _LoginState extends State<CreateAccount> {
     return Scaffold(
       backgroundColor:
           Color(Utils.hexStringToHexInt(ColorsCode.backgroundColor)),
-      body: GetBuilder<LoginController>(
-        builder: (contorller) {
-          return SizedBox(
-            width: width,
-            height: height,
-            child: SingleChildScrollView(
-              child: Form(
-                key: loginFormGlobalKey,
-                child: Padding(
-                  padding: ScreenUtils.isLargeScreen(context)?
-                  EdgeInsets.only(left: MediaQuery.of(context).size.width*0.2,
-                      right:MediaQuery.of(context).size.width*0.2)
-
-                      : EdgeInsets.all(1.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      _imageLogo(height),
-                      Gap(height * 0.06),
-                      _createAccount(width, height),
-                      Gap(height * 0.02),
-                      _fNameTextField(),
-                      Gap(height * 0.02),
-                      _lNameTextField(),
-                      Gap(height * 0.02),
-                      _emailTextField(),
-                      Gap(height * 0.03),
-                      _passwordTextField(),
-                      _agreeTermsRow(context, height, width),
-                      Gap(height * 0.1 + 14),
-                      _createButton(context, width, height,contorller),
-                      const Gap(6),
-                      _loginText(width)
-                    ],
-                  ),
+      body: GetBuilder<LoginController>(builder: (contorller) {
+        return SizedBox(
+          width: width,
+          height: height,
+          child: SingleChildScrollView(
+            child: Form(
+              key: loginFormGlobalKey,
+              child: Padding(
+                padding: ScreenUtils.isLargeScreen(context)
+                    ? EdgeInsets.only(
+                        left: MediaQuery.of(context).size.width * 0.2,
+                        right: MediaQuery.of(context).size.width * 0.2)
+                    : EdgeInsets.all(1.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    _imageLogo(height,context),
+                    Gap(height * 0.06),
+                    _createAccount(width, height),
+                    Gap(height * 0.02),
+                    _fNameTextField(),
+                    Gap(height * 0.02),
+                    _lNameTextField(),
+                    Gap(height * 0.02),
+                    _emailTextField(),
+                    Gap(height * 0.03),
+                    _passwordTextField(),
+                    _agreeTermsRow(context, height, width),
+                    Gap(height * 0.1 + 14),
+                    _createButton(context, width, height, contorller),
+                    const Gap(6),
+                    _loginText(width)
+                  ],
                 ),
               ),
             ),
-          );
-        }
-      ),
+          ),
+        );
+      }),
     );
   }
 
-  _imageLogo(height) {
-    return SvgPicture.asset(
-      'assets/svg/ICEF_WHITE.svg',
-      color: Colors.white,
+  _imageLogo(height,context) {
+      return Image.asset('assets/splash_image.png',
+      height: MediaQuery.of(context).size.height*0.1,
+      width: MediaQuery.of(context).size.width *0.1,
     ).paddingOnly(top: height * 0.1);
   }
 
@@ -117,7 +114,6 @@ class _LoginState extends State<CreateAccount> {
       'First Name',
       'admin@gmail.com',
       '',
-
       controller: fnameController,
     );
   }
@@ -127,7 +123,6 @@ class _LoginState extends State<CreateAccount> {
       'Last name',
       'admin@gmail.com',
       '',
-
       controller: lnameController,
     );
   }
@@ -185,7 +180,7 @@ class _LoginState extends State<CreateAccount> {
                 children: [
                   const TextSpan(
                       text:
-                          'I consent to ICEF using my personal data according to ICEF\'s ',
+                          'I consent to ChatKaro using my personal data according to ChatKaro\'s ',
                       style: TextStyle(
                         color: Colors.white,
                         fontFamily: "Poppins Regular",
@@ -213,7 +208,7 @@ class _LoginState extends State<CreateAccount> {
     );
   }
 
-  _createButton(context, width, height,LoginController contorller) {
+  _createButton(context, width, height, LoginController contorller) {
     return Utils().createButton(
         context,
         "Create Account",
@@ -224,22 +219,20 @@ class _LoginState extends State<CreateAccount> {
                 : height * 0.07 + 9)
             : height * 0.07, () {
       if (loginFormGlobalKey.currentState!.validate()) {
-
         contorller.creatNewUser(
-          context: context,
-          email: emailController.value.text,
-          fNmae: fnameController.value.text,
-          lName: lnameController.value.text,
-          pass: passwordController.value.text
-        );
-
+            context: context,
+            email: emailController.value.text,
+            fNmae: fnameController.value.text,
+            lName: lnameController.value.text,
+            pass: passwordController.value.text);
       }
-    },contorller).paddingOnly(
-        left:
-            ScreenUtils.isSmallScreen(context) ? width * 0.1 + 22 : width * 0.2,
+    }, contorller).paddingOnly(
+        left: ScreenUtils.isSmallScreen(context)
+            ? width * 0.1 + 22
+            : width * 0.1 + 22,
         right: ScreenUtils.isSmallScreen(context)
             ? width * 0.1 + 22
-            : width * 0.2);
+            : width * 0.1 + 22);
   }
 
   _loginText(width) {
@@ -247,14 +240,30 @@ class _LoginState extends State<CreateAccount> {
       onTap: () {
         Navigator.pop(context);
       },
-      child: Text(
-        'Login',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize:
-              ScreenUtils.isSmallScreen(context) ? width * 0.05 : width * 0.03,
-          fontFamily: "Poppins Regular",
-          decoration: TextDecoration.underline,
+      child: MouseRegion(
+        onEnter: (_) {
+          controller.isLoginCreat = true;
+        },
+        onExit: (_) {
+          controller.isLoginCreat = false;
+        },
+        child: Transform.scale(
+            scale: controller.isLoginCreat ? 1.2 : 1.0,
+            child: Text(
+              'Login',
+              style: TextStyle(
+                color: controller.isLoginCreat ? Colors.indigo : Colors.white,
+                fontSize: ScreenUtils.isSmallScreen(context)
+                    ? width * 0.05
+                    : width * 0.03,
+                fontFamily: "Poppins Regular",
+                  decoration: controller.isLoginCreat
+                      ? TextDecoration.underline
+                      : TextDecoration.none,
+                  decorationColor: Colors.indigo,
+                  decorationThickness: 2
+              ),
+            )
         ),
       ),
     );

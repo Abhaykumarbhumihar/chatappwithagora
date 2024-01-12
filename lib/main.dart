@@ -311,6 +311,7 @@
 //
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter_caht_module/screen/recentchat.dart';
 import 'package:story_view/story_view.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -390,6 +391,7 @@ void showNotification(RemoteMessage message, {bool isVideoCall = false}) {
 }
 
 void handleVideoCallNotification(RemoteMessage message) {
+
   var videoChannelId = message.data?['channelid'];
   var fname = message.data?['fname'];
   var calleruserId = message.data?['userid'];
@@ -406,6 +408,10 @@ void handleVideoCallNotification(RemoteMessage message) {
   print("IN NOTIFICATION CALLING STATUS UPDATE  ${userJoin}");
   var isvideocall = message.data?['videocall'];
   var isaudiocall = message.data?['voicecall'];
+
+
+
+
 
   if (isvideocall=="true") {
     myController.callringingornot(
@@ -499,6 +505,7 @@ Future<void> main() async {
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print("NOTIFICATION in webbbbb IS COMMING IN onMessage");
       if (message.data?['videocall']=="true" ||
           message.data?['voicecall']=="true" ) {
         handleVideoCallNotification(message);
@@ -508,7 +515,7 @@ Future<void> main() async {
     });
 
     FirebaseMessaging.onMessage.listen((RemoteMessage? message) {
-      print("NOTIFICATION IS COMMING IN onMessage");
+      print("NOTIFICATION in webbbbb IS COMMING IN onMessage");
       print(message?.data);
       //  {videocall: true, imageurl: , name: diwalit, body: Video call , title: Video Call,
       //  userid: IPoBtAe97VbyxhqGzpi9G9EHOJw1, channelid: asGFK2IKOeZRd2Ur0mQuFW2Wwvm21704204144055, custom_key: videocall}
@@ -730,6 +737,70 @@ class StoryListScreen extends StatelessWidget {
         },
       ]
     },
+    {
+      "name": "Abhay",
+      "id": 1,
+      "status_images": [
+        {
+          "status_seen": false,
+          "image": "https://picsum.photos/213",
+        },
+        {
+          "status_seen": false,
+          "image": "https://picsum.photos/212",
+        },
+        {
+          "status_seen": false,
+          "image": "https://picsum.photos/210",
+        }
+      ]
+    },
+    {
+      "name": "Rai",
+      "id": 2,
+      "status_images": [
+        {
+          "status_seen": true,
+          "image": "https://picsum.photos/203",
+        },
+        {
+          "status_seen": true,
+          "image": "https://picsum.photos/202",
+        },
+      ]
+    },
+    {
+      "name": "Abhay",
+      "id": 1,
+      "status_images": [
+        {
+          "status_seen": false,
+          "image": "https://picsum.photos/213",
+        },
+        {
+          "status_seen": false,
+          "image": "https://picsum.photos/212",
+        },
+        {
+          "status_seen": false,
+          "image": "https://picsum.photos/210",
+        }
+      ]
+    },
+    {
+      "name": "Rai",
+      "id": 2,
+      "status_images": [
+        {
+          "status_seen": true,
+          "image": "https://picsum.photos/203",
+        },
+        {
+          "status_seen": true,
+          "image": "https://picsum.photos/202",
+        },
+      ]
+    },
   ];
 
   @override
@@ -744,7 +815,9 @@ class StoryListScreen extends StatelessWidget {
           final user = apiResponse[index];
           return ListTile(
             title: Text(user['name']),
-            subtitle: Image.network(user['status_images'][0]['image']),
+            leading: CircleAvatar(
+              backgroundImage: NetworkImage(user['status_images'].last['image']),
+            ),
             onTap: () {
               Navigator.push(
                 context,
@@ -776,24 +849,24 @@ class StoryViewScreen extends StatefulWidget {
   _StoryViewScreenState createState() => _StoryViewScreenState();
 }
 
+
 class _StoryViewScreenState extends State<StoryViewScreen> {
   final controller = StoryController();
-  int currentStoryIndex = 0;
+  int currentUserIndex = 0;
+  int currentStatusIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.users[currentStoryIndex]['name']}\'s Story'),
+        title: Text('${widget.users[currentUserIndex]['name']}\'s Story'),
       ),
       body: Column(
         children: [
           LinearProgressIndicator(
-            value: currentStoryIndex /
-                widget.users[currentStoryIndex]['status_images'].length,
+            value: currentStatusIndex / widget.users[currentUserIndex]['status_images'].length,
             valueColor: AlwaysStoppedAnimation<Color>(
-              widget.users[currentStoryIndex]['status_images']
-                      [currentStoryIndex]['status_seen']
+              widget.users[currentUserIndex]['status_images'][currentStatusIndex]['status_seen']
                   ? Colors.grey
                   : Colors.green,
             ),
@@ -802,31 +875,30 @@ class _StoryViewScreenState extends State<StoryViewScreen> {
           Expanded(
             child: StoryView(
               controller: controller,
-              storyItems: widget.users[currentStoryIndex]['status_images']
-                  .map<StoryItem>(
-                    (statusImage) => StoryItem.pageImage(
-                      url: statusImage['image'],
-                      controller: controller,
-                      duration: const Duration(seconds: 30),
-                    ),
-                  )
+              storyItems: widget.users[currentUserIndex]['status_images']
+                  .map<StoryItem>((statusImage) => StoryItem.pageImage(
+                url: statusImage['image'],
+                controller: controller,
+                duration: const Duration(seconds: 5),
+              ))
                   .toList(),
               onComplete: () {
-                // Check if all status_seen is true
-                bool allStatusSeen =
-                    widget.users[currentStoryIndex]['status_images'].every(
-                  (statusImage) => statusImage['status_seen'] == true,
-                );
-
-                if (allStatusSeen) {
-                  // Show the next user's status if available
-                  int currentIndex = currentStoryIndex + 1;
-                  if (currentIndex < widget.users.length) {
+                // Move to the next user if all status images of the current user are shown
+                int nextStatusIndex = currentStatusIndex + 1;
+                if (nextStatusIndex < widget.users[currentUserIndex]['status_images'].length) {
+                  setState(() {
+                    currentStatusIndex = nextStatusIndex;
+                    controller.play();
+                  });
+                } else {
+                  int nextUserIndex = currentUserIndex + 1;
+                  if (nextUserIndex < widget.users.length) {
                     setState(() {
-                      currentStoryIndex = currentIndex;
+                      currentUserIndex = nextUserIndex;
+                      currentStatusIndex = 0; // Reset status index for the next user
                     });
+                    controller.play();
                   } else {
-                    // If no more users, you can navigate back or handle as needed
                     Navigator.pop(context);
                   }
                 }
@@ -839,13 +911,13 @@ class _StoryViewScreenState extends State<StoryViewScreen> {
               },
               onStoryShow: (storyItem) {
                 // Update progress indicator when a new story is shown
-                int currentIndex = widget.users[currentStoryIndex]
-                        ['status_images']
+                int index = widget.users[currentUserIndex]['status_images']
                     .indexWhere((element) => element == storyItem.view);
-                // setState(() {
-                //
-                // });
-                currentStoryIndex = currentIndex;
+                if (index != -1) {
+                  setState(() {
+                    currentStatusIndex = index;
+                  });
+                }
               },
             ),
           ),

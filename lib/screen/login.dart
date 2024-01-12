@@ -34,16 +34,16 @@ class Login extends StatelessWidget {
               child: Form(
                 key: contorller.loginFormGlobalKey,
                 child: Padding(
-                  padding: ScreenUtils.isLargeScreen(context)?
-                  EdgeInsets.only(left: MediaQuery.of(context).size.width*0.2,
-                   right:MediaQuery.of(context).size.width*0.2)
-
+                  padding: ScreenUtils.isLargeScreen(context)
+                      ? EdgeInsets.only(
+                          left: MediaQuery.of(context).size.width * 0.2,
+                          right: MediaQuery.of(context).size.width * 0.2)
                       : EdgeInsets.all(1.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
-                      _logoImage(height),
+                      _logoImage(height,context),
                       Gap(height * 0.06),
                       _loginText(height, width, context),
                       Gap(height * 0.02),
@@ -51,22 +51,41 @@ class Login extends StatelessWidget {
                       Gap(height * 0.03),
                       _passwordTextField(contorller),
                       Gap(height * 0.03),
-                       Row(
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           Padding(
                             padding: EdgeInsets.only(right: 20),
                             child: InkWell(
-
                               onTap: () {
-
-                                controller.resetPassword(contorller.emailController.value.text);
+                                controller.resetPassword(
+                                    contorller.emailController.value.text);
                               },
-                              child: Transform.scale(
-                                scale: controller.isHovered ? 1.3 : 1.0,
-                                child: Text("Forgot Password",style: TextStyle(
-                                  fontSize: 18.0,fontWeight: FontWeight.bold,color: Colors.indigo
-                                ),),
+                              child: MouseRegion(
+                                onEnter: (_) {
+                                  controller.isPasswordHovered = true;
+                                },
+                                onExit: (_) {
+                                  controller.isPasswordHovered = false;
+                                },
+                                child: Transform.scale(
+                                  scale:
+                                      controller.isPasswordHovered ? 1.3 : 1.0,
+                                  child: Text(
+                                    "Forgot Password",
+                                    style: TextStyle(
+                                        fontSize: 18.0,
+                                        fontWeight: FontWeight.bold,
+                                        color: controller.isPasswordHovered
+                                            ? Colors.green
+                                            : Colors.indigo,
+                                        decoration: controller.isPasswordHovered
+                                            ? TextDecoration.underline
+                                            : TextDecoration.none,
+                                        decorationColor: Colors.green,
+                                        decorationThickness: 2),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -88,10 +107,10 @@ class Login extends StatelessWidget {
     );
   }
 
-  _logoImage(height) {
-    return SvgPicture.asset(
-      'assets/svg/ICEF_WHITE.svg',
-      color: Colors.white,
+  _logoImage(height,context) {
+    return Image.asset('assets/splash_image.png',
+      height: MediaQuery.of(context).size.height*0.1,
+      width: MediaQuery.of(context).size.width *0.1,
     ).paddingOnly(top: height * 0.1);
   }
 
@@ -99,7 +118,7 @@ class Login extends StatelessWidget {
     return Align(
       alignment: Alignment.centerLeft,
       child: Text(
-        "Login To Your ICEF Account",
+        "Login To Your ChatKaro Account",
         style: TextStyle(
             color: Colors.white,
             fontFamily: 'Poppins SemiBold',
@@ -174,7 +193,7 @@ class Login extends StatelessWidget {
                 children: [
                   const TextSpan(
                       text:
-                          'I consent to ICEF using my personal data according to ICEF\'s ',
+                          'I consent to ChatKaro using my personal data according to ICEF\'s ',
                       style: TextStyle(
                         color: Colors.white,
                         fontFamily: "Poppins Regular",
@@ -214,18 +233,18 @@ class Login extends StatelessWidget {
             : height * 0.07, () {
       controller.getToken();
       if (contorller.loginFormGlobalKey.currentState!.validate()) {
-
-         controller.loginUser(
-             email: contorller.emailController.value.text,
-             context: context,
-             password: controller.passwordController.value.text);
+        controller.loginUser(
+            email: contorller.emailController.value.text,
+            context: context,
+            password: controller.passwordController.value.text);
       }
-    },contorller).paddingOnly(
+    }, contorller).paddingOnly(
         left:
             ScreenUtils.isSmallScreen(context) ? width * 0.1 + 22 : width * 0.2,
         right: ScreenUtils.isSmallScreen(context)
             ? width * 0.1 + 22
-            : width * 0.2);
+            : width * 0.2
+    );
   }
 
   _createAccountText(context, width, height) {
@@ -233,15 +252,31 @@ class Login extends StatelessWidget {
       onTap: () {
         Navigator.of(context).push(createRoute(const CreateAccount()));
       },
-      child: Text(
-        'Create Account',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize:
-              ScreenUtils.isSmallScreen(context) ? width * 0.05 : width * 0.03,
-          fontFamily: "Poppins Regular",
-          decoration: TextDecoration.underline,
-        ),
+      child: MouseRegion(
+        onExit: (_) {
+          controller.isCreateAccountHovered = false;
+        },
+        onEnter: (_) {
+          controller.isCreateAccountHovered = true;
+        },
+        child: Transform.scale(
+            scale: controller.isCreateAccountHovered ? 1.2 : 1.0,
+            child: Text(
+              'Create Account',
+              style: TextStyle(
+                  color: controller.isCreateAccountHovered
+                      ? Colors.indigo
+                      : Colors.white,
+                  fontSize: ScreenUtils.isSmallScreen(context)
+                      ? width * 0.05
+                      : width * 0.03,
+                  fontFamily: "Poppins Regular",
+                  decoration: controller.isCreateAccountHovered
+                      ? TextDecoration.underline
+                      : TextDecoration.none,
+                  decorationColor: Colors.indigo,
+                  decorationThickness: 2),
+            )),
       ),
     );
   }

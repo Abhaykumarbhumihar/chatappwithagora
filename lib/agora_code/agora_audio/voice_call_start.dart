@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -27,9 +29,37 @@ class VoiceCallScrenn extends StatefulWidget {
 }
 
 class _VoiceCallScrennState extends State<VoiceCallScrenn> {
+  ///call duration
+  late Timer _callDurationTimer;
+  int _callDurationInSeconds = 0;
+
+  String get formattedCallDuration {
+    // Convert seconds to HH:mm:ss format
+    int hours = _callDurationInSeconds ~/ 3600;
+    int minutes = (_callDurationInSeconds % 3600) ~/ 60;
+    int seconds = _callDurationInSeconds % 60;
+    String formattedTime = '';
+
+    if (hours > 0) {
+      formattedTime += '$hours:';
+    }
+
+    formattedTime += '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+
+    return formattedTime;
+  }
+
+  bool _isCalldisconnet = false;
+
   late RtcEngine agoraEngine;
   bool _isJoined = false;
   int? _remoteUid;
+  List<int> _remoteUids = [];
+  bool _isMuted = false;
+
+  Map<int, bool> remoteUserMuteStates = {};
+  Map<int, bool> remoteUserMuteVideoStates = {};
+
 
   final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
       GlobalKey<ScaffoldMessengerState>();
@@ -61,6 +91,13 @@ class _VoiceCallScrennState extends State<VoiceCallScrenn> {
         showMessage("Remote user joined the channel");
         setState(() {
           _remoteUid = remoteUid;
+          _remoteUids.add(remoteUid);
+          _callDurationTimer =
+              Timer.periodic(const Duration(seconds: 1), (timer) {
+                setState(() {
+                  _callDurationInSeconds++;
+                });
+              });
         });
       },
       onUserOffline: (RtcConnection connection, int remoteUid,
@@ -68,6 +105,29 @@ class _VoiceCallScrennState extends State<VoiceCallScrenn> {
         showMessage("Remote user left the channel");
         setState(() {
           _remoteUid = null;
+          _remoteUids.remove(remoteUid);
+          if (_remoteUids.isEmpty) {
+            _callDurationTimer.cancel();
+            _isCalldisconnet = false;
+
+            ///means ab meeting me koi bhi remote user nhi hai
+            // leave();
+            // var controller = Get.put(RecentChatController());
+            // controller.getData();
+            // Get.off(() => RecentChat());
+          }
+        });
+      },
+      onUserMuteAudio:
+          (RtcConnection connection, int remoteUid, bool muted) {
+        setState(() {
+          remoteUserMuteStates[remoteUid] = muted; // True if muted
+        });
+      },
+      onUserMuteVideo:
+          (RtcConnection connection, int remoteUid, bool muted) {
+        setState(() {
+          remoteUserMuteVideoStates[remoteUid] = muted; // True if muted
         });
       },
     ));
@@ -101,8 +161,18 @@ class _VoiceCallScrennState extends State<VoiceCallScrenn> {
     super.dispose();
   }
 
+  void toggleMute() {
+    setState(() {
+      _isMuted = !_isMuted;
+    });
+
+    agoraEngine.muteLocalAudioStream(_isMuted);
+  }
+
   @override
   Widget build(BuildContext context) {
+    print("CHANNEL CHANNEL CHANNEL===========");
+    print(widget.channelId);
     return Scaffold(
       backgroundColor: Colors.black, // Example background color
       body: SafeArea(
@@ -164,11 +234,12 @@ class _VoiceCallScrennState extends State<VoiceCallScrenn> {
                 .headline5!
                 .copyWith(color: Colors.white),
           ),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
+          if (_callDurationInSeconds > 0)
           Text(
-            '25:00',
+            formattedCallDuration,
             style: Theme.of(context)
                 .textTheme
                 .headline5!
@@ -186,21 +257,21 @@ class _VoiceCallScrennState extends State<VoiceCallScrenn> {
       children: [
         ElevatedButton(
           onPressed: () => null,
-          child: const Icon(Icons.call_end),
           style: ElevatedButton.styleFrom(
             shape: const CircleBorder(),
             padding: const EdgeInsets.all(20),
           ),
+          child: const Icon(Icons.call_end),
         ),
         const SizedBox(width: 20),
 
         ElevatedButton(
           onPressed: () => null,
-          child: const Icon(Icons.mic_off),
           style: ElevatedButton.styleFrom(
             shape: const CircleBorder(),
             padding: const EdgeInsets.all(20),
           ),
+          child: const Icon(Icons.mic_off),
         ),
         // Additional controls (speakerphone, etc.)
       ],

@@ -86,8 +86,7 @@ class _MakeVoiceCallState extends State<MakeVoiceCall> {
                           size: 40.0,
                         ),
                         onPressed: () {
-                          var userlist = [widget.receiverid, widget.userId]
-                            ..sort();
+                          var userlist = [widget.receiverid, widget.userId]..sort();
                           var userJoin = userlist.join('-');
                           print(
                               "AT DISCONNECT CALLING STATEUS ${userJoin}");
